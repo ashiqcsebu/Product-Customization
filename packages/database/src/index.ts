@@ -8,3 +8,6 @@ export * from "./models/design-resource.model.js";
 export * from "./models/customizer-config.model.js";
 export * from "./models/design.model.js";
 export * from "./models/design-view.model.js";
+export * from "./models/design-version.model.js";
+export * from "./models/design-version-view.model.js";
+export * from "./models/cart-session.model.js";
