@@ -1,0 +1,1421 @@
+Product Customization Canvas
+Design
+Full Project Documentation, Architecture & Database Design
+Complete & Unabridged VersionPart 1: Product Customization Canvas Design
+১. Top Header
+Header-এর মধ্যে থাকবে:
+Store logo
+Product name
+Selected variant
+Undo button
+Redo button
+Reset design
+Save design
+Preview button
+Add to Cart button
+Dynamic product price
+২. Left-Side Toolbar
+Upload Image
+JPG, PNG, SVG, WEBP upload
+Drag-and-drop upload
+Transparent PNG support
+Image size validation
+Low-resolution warning
+File size limit
+Uploaded image library
+Remove background option
+Add Text
+Heading text
+Paragraph text
+Curved text
+Multiple text lines• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• Custom fonts
+Google fonts
+Font size
+Bold, italic, underline
+Letter spacing
+Line height
+Text alignment
+Text color
+Text outline
+Text shadow
+Graphics and Clipart
+Icons
+Logos
+Stickers
+Shapes
+Decorative elements
+Category-based clipart
+Search option
+Admin-uploaded graphics
+Shapes
+Circle
+Rectangle
+Square
+Triangle
+Line
+Custom SVG shape
+Shape fill color
+Border color
+Border width
+Corner radius
+Other Tools
+QR code generator
+Barcode generator• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• Pattern selector
+Monogram generator
+Background color
+Product color selector
+৩. Main Product Canvas
+Canvas-এর মাঝখানে product mockup থাকবে।
+প্রয়াজনেীয় Canvas feature:
+Drag element
+Resize element
+Rotate element
+Delete element
+Duplicate element
+Lock element
+Flip horizontally
+Flip vertically
+Bring forward
+Send backward
+Center horizontally
+Center vertically
+Multi-element selection
+Keyboard arrow movement
+Copy and paste
+Snap-to-center guideline
+Smart alignment guideline
+Zoom in and zoom out
+Fullscreen canvas
+Mouse wheel zoom
+Touchscreen gesture support
+Canvas তৈর করার জনেধ্যে Fabric.js বেধ্যেবেহার করা সবেচেয় ভালা হবে।
+৪. Printable Area
+Product-এর উপর একটি নের্দিষ্ট printable area থাকবে।
+যেমনে:• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• T-shirt chest print area
+Mug front print area
+Bottle label area
+Phone case design area
+Printable area feature:
+Safe-area boundary
+Bleed-area boundary
+Out-of-area warning
+Print-area clipping
+Element canvas-এর বোইর গেল warning
+Printable dimension display
+CM, MM, Inch অথবো Pixel measurement
+Admin থক print area configure করার সুবো
+৫. Right-Side Settings Panel
+User যে element select করবে, সই অনেুযোয়ী settings খাবে।
+Text Selected হলে
+Font family, Font size, Text color , Font weight, Alignment, Letter spacing, Line height, Outline,
+Shadow, Opacity, Rotation
+Image Selected হলে
+Width, Height, Rotation, Opacity, Crop, Mask, Filters, Brightness, Contrast, Saturation, Remove
+background, Replace image
+Shape Selected হলে
+Fill color , Border color , Border width, Opacity, Corner radius, Rotation
+৬. Layer Management
+একটি Layers panel থাকা রকার।
+সবে element-এর list
+Layer reorder
+Layer hide/show
+Layer lock/unlock• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• Layer rename
+Duplicate layer
+Delete layer
+Bring to front
+Send to back
+৭. Multiple Product Views
+Product অনেুযোয়ী একাক customization view থাকবে।
+উাহরণ:
+T-shirt:  Front, Back, Left sleeve, Right sleeve
+Mug:  Front, Back, Full wrap
+Bottle:  Front, Back, Full label wrap
+প্রতৈটি view-এর design আলাাভাবে save হবে।
+৮. Product Options
+Canvas-এর নেচে বো side panel-এ থাকবে:
+Product color
+Size
+Material
+Style
+Print location
+Quantity
+Product mockup type
+Variant selection
+Variant change করল canvas design যেনে হারয় নো যোয়।
+৯. Preview System
+User final product preview খতৈ পারবে।
+Front preview
+Back preview
+Different angle preview
+Fullscreen preview• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• Product color preview
+Realistic mockup preview
+Downloadable preview
+Mobile preview
+Before/after design comparison
+Future version-এ 3D preview যেুক্ত করা যোবে।
+১০. Dynamic Pricing
+Customization অনেুযোয়ী price update হবে।
+উাহরণ:
+Base product price
+Extra print area charge
+Premium font charge
+Background removal charge
+Multiple-side print charge
+Large print charge
+Quantity discount
+Custom graphic charge
+Price calculation:
+Base Product Price
++ Customization Charge
++ Additional Print Side
++ Special Material
+- Quantity Discount
+= Final Price
+১১. Save Design
+User design save করতৈ পারবে।
+Autosave
+Save design manually
+Guest design save
+Logged-in user design library
+Generate unique design ID• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• Copy design link
+Edit saved design
+Reorder saved design
+Design expiration control
+১২. Shopify Add to Cart Integration
+Add to Cart করার সময় Shopify-তৈ পাঠাতৈ হবে:
+Product ID
+Variant ID
+Quantity
+Product size
+Product color
+Design ID
+Preview image URL
+Print-ready file URL
+Selected customization options
+Additional price
+Custom text information
+Cart item properties-এ এই information খানো যোবে।
+১৩. Export System
+Admin-এর জনেধ্যে export feature অতৈধ্যেন্ত গুরুত্বপূণর্দি।
+High-resolution PNG
+Transparent PNG
+SVG
+PDF
+Print-ready file
+300 DPI output
+Separate export for each product side
+Design JSON file
+Preview mockup
+Customer artwork download
+Order-wise export• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• ১৪. Mobile Responsive Design
+Mobile features:
+Bottom toolbar
+Swipe between product views
+Pinch-to-zoom
+Touch drag
+Touch resize
+Collapsible settings drawer
+Sticky Add to Cart
+Full-width canvas
+Mobile-safe controls
+১৫. Admin Dashboard Features
+Admin dashboard থক নেয়ন্ত্রণ করা যোবে:
+Products connect করা
+Shopify products sync করা
+Mockup upload করা
+Print area define করা
+Front/back view configure করা
+Product color set করা
+Clipart upload করা
+Font manage করা
+Customization price set করা
+Design template create করা
+User designs খা
+Order design download করা
+Print-ready file download করা
+File size এবেং resolution rules set করা
+১৬. প্রয়োজনীয় Advanced Features
+Design template
+Pre-made layouts
+AI background remover• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• AI image generator
+Image quality checker
+Spell checker
+Text overflow warning
+Low-resolution warning
+Auto-center design
+Auto-fit design
+Design version history
+Real-time autosave
+Customer design sharing
+Duplicate previous order
+Bulk quantity pricing
+Multilingual interface
+Currency support
+Accessibility support
+Recommended Canvas Structure
+সবেচেয় clean এবেং professional structure হবে:
+Desktop: Left tools + Middle canvas + Right settings
+Mobile: Full-width canvas + Bottom tools + Slide-up settings
+Bottom area: Product views, variants এবেং pricing
+Top area: Undo, redo, preview, save এবেং Add to Cart
+এই structure য় T-shirt, mug, bottle, pouch, phone case, signage এবেং অনেধ্যোনেধ্যে customizable product
+একই system-এর মধ্যে manage করা যোবে।• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• Part 2: Recommended Advanced MERN Architecture
+Shopify Product Page
+        │
+        │ Product ID + Variant ID
+        ▼
+Next.js Product Customizer
+        │
+        ├── Fabric.js 2D Canvas
+        ├── React Three Fiber 3D Preview
+        ├── Zustand Canvas State
+        └── Local Autosave
+        │
+        ▼
+Next.js BFF / API Proxy
+        │
+        ▼
+Express.js + TypeScript API
+        │
+        ├── MongoDB / Mongoose
+        ├── S3 Object Storage
+        ├── Redis + BullMQ
+        ├── Sharp Image Processor
+        └── Shopify API
+        │
+        ▼
+Shopify Cart → Checkout → Order Webhook
+        │
+        ▼
+Production Dashboard → Print File → Delivery
+১. Frontend Technology
+Next.js + React + TypeScript
+বেধ্যেবেহার করবেনে:
+Next.js App Router
+React
+TypeScript
+Tailwind CSS
+shadcn/ui
+Zustand বো Redux Toolkit
+React Query/TanStack Query• 
+• 
+• 
+• 
+• 
+• 
+• React Hook Form
+Zod validation
+Responsibility: Product customizer interface, Product ও variant selection, Canvas toolbar , Settings
+panel, Layers panel, Save design, Preview, Add to cart, Customer design library, Admin dashboard.
+Component structure
+apps/web/
+├── app/
+│   ├── customize/[productHandle]/
+│   ├── designs/
+│   ├── admin/
+│   └── api/
+├── components/
+│   ├── customizer/
+│   │   ├── CanvasEditor.tsx
+│   │   ├── ToolsPanel.tsx
+│   │   ├── PropertiesPanel.tsx
+│   │   ├── LayersPanel.tsx
+│   │   ├── ProductViews.tsx
+│   │   └── PriceSummary.tsx
+│   └── ui/
+├── stores/
+├── hooks/
+└── services/
+২. Canvas Technology
+Fabric.js বেধ্যেবেহার করবেনে। Product customization-এর 2D editor-এর জনেধ্যে Fabric.js সবেচেয় উপযোগেী হবে। এটি
+support কর:
+Object selection, Drag and drop, Resize, Rotate, Layer ordering
+Text editing, Shapes, SVG, Clip paths, Image filters
+Canvas state serialization, JSON save/load, SVG এবেং image export
+Fabric.js interactive canvas, object transformation, stack ordering, serialization, JSON/SVG/image export
+এবেং viewport handling য়। (Fabric.js)• 
+• 
+• 
+• 
+• Canvas Engine আলেোদো package করুন
+packages/canvas-engine/
+├── core/
+│   ├── createCanvas.ts
+│   ├── loadDesign.ts
+│   ├── saveDesign.ts
+│   └── exportDesign.ts
+├── objects/
+│   ├── addText.ts
+│   ├── addImage.ts
+│   ├── addShape.ts
+│   └── addClipart.ts
+├── controls/
+├── history/
+├── guidelines/
+├── print-area/
+└── types/
+এতৈ frontend এবেং export worker একই canvas logic বেধ্যেবেহার করতৈ পারবে।
+৩. Optional 3D Preview
+Realistic T-shirt, mug, bottle বো pouch preview-এর জনেধ্যে:
+Three.js
+React Three Fiber
+Drei
+GLTF/GLB product models
+Dynamic CanvasTexture
+React Three Fiber হলা Three.js-এর React renderer। এটি য় React component-এর মতৈা 3D scene, mesh,
+material এবেং texture manage করা যোয়। (Poimandres)• 
+• 
+• 
+• 
+• 3D flow
+Fabric.js Canvas
+      │
+      │ Export preview texture
+      ▼
+CanvasTexture
+      │
+      ▼
+Three.js Product Material
+      │
+      ▼
+Real-time 3D Product Preview
+প্রথম version-এ 2D mockup রাখবেনে। 3D preview Phase 3-এ যোগে করাই ভালা।
+৪. Backend Technology
+Express.js + TypeScript
+Express API business logic handle করবে:
+Authentication, Product sync, Design save, Asset metadata, Pricing calculation, Export jobs, Shopify
+cart creation, Shopify webhooks, Order processing, Admin permissions
+Express routing ও middleware-based framework হওয়ায় authentication, validation, rate limiting এবেং role
+permissions আলাা middleware হসবে রাখা যোয়। Express 5 async handler-এর rejected Promise error
+middleware-এ পাঠাতৈ পার। (Express.js)• Backend structure
+apps/api/
+├── src/
+│   ├── modules/
+│   │   ├── auth/
+│   │   ├── products/
+│   │   ├── templates/
+│   │   ├── designs/
+│   │   ├── assets/
+│   │   ├── pricing/
+│   │   ├── exports/
+│   │   ├── carts/
+│   │   ├── orders/
+│   │   └── webhooks/
+│   ├── middleware/
+│   ├── services/
+│   ├── queues/
+│   ├── sockets/
+│   ├── config/
+│   └── server.ts
+৫. MongoDB Database Structure
+Recommended collections: users, products, customizerTemplates, designs, designVersions, assets,
+exportJobs, customOrders, webhookEvents.
+MongoDB transaction বেধ্যেবেহার কর design, version এবেং asset metadata-এর মতৈা related update
+atomicভাবে করা যোবে। Change Streams য় design export বো order status পরবেতৈ র্দি নে হল real-time event তৈর
+করা সম্ভবে। (MongoDB)
+৬. Step-by-Step Complete Work Flow
+Step 1: Shopify Product Sync
+Admin app install বো connect করার পর Express backend Shopify থক সংগ্রহ করবে: Product, Variants,
+Images, Price, Options, Inventory, Metafields.
+MongoDB-এর products collection-এ Shopify ID সংরক্ষণ করবেনে।
+Sync trigger: App installation, Manual sync, Product update webhook, Product delete webhookStep 2: Admin Customizer Setup
+Product
+  ├── Front mockup
+  ├── Back mockup
+  ├── Left-side mockup
+  ├── Right-side mockup
+  ├── Print area
+  ├── Safe area
+  ├── Bleed area
+  ├── Allowed tools
+  ├── Fonts
+  ├── Cliparts
+  └── Pricing rules
+Print area save করবেনে normalized coordinate হসবে:
+{
+  "x": 0.22,
+  "y": 0.18,
+  "width": 0.56,
+  "height": 0.64
+}
+এভাবে desktop, mobile এবেং high-resolution export-এ একই print-area ratio রাখা যোবে।
+Step 3: Customer Opens Customizer
+Shopify product page-এর Customize button user-ক পাঠাবে:
+https://customizer.example.com/customize/t-shirt
+?product=gid://shopify/Product/123
+&variant=gid://shopify/ProductVariant/456
+Frontend backend থক load করবে: Product information, Selected variant, Mockups, Print areas, Allowed
+customization tools, Existing design, Pricing rules.
+Step 4: Initialize Canvas
+Fabric Canvas তৈর করবে।
+Product mockup background হসবে বেসাবে।
+Print area clip path তৈর করবে।• 
+• 
+• Safe-area guideline খাবে।
+Product view অনেুযোয়ী canvas state load করবে (Front View → frontCanvasJSON ইতৈধ্যো)।
+Step 5: Customer Customizes Product
+Canvas tools (Upload, add text, etc.)। প্রতৈটি object-এর custom metadata রাখবেনে:
+{
+  "id": "object_uuid",
+  "type": "image",
+  "assetId": "asset_id",
+  "view": "front",
+  "printable": true,
+  "locked": false
+}
+Step 6: Canvas State Management
+Zustand store-এর মধ্যে পুরা Fabric object রাখবেনে নো। Store-এ রাখবেনে: Selected object ID, Active product
+view, Zoom level, Undo/redo state, Dirty state, Pricing selections, Canvas JSON snapshot।
+Step 7: Image Upload Pipeline
+Customer selects file
+        ↓
+Frontend validates size/type
+        ↓
+Express generates presigned upload URL
+        ↓
+Browser uploads directly to S3
+        ↓
+Express saves asset metadata
+        ↓
+Processing job starts
+        ↓
+Optimized image returned
+Upload validations: MIME type, File extension, Magic bytes, Max size, Dimensions, Transparent PNG,
+SVG sanitization, Virus scanning, hash detection.
+Step 8: Client-Side Image Processing
+ছাট operations client-side করা যোয়: Thumbnail generation, Crop preview, Brightness preview, Contrast
+preview, Background preview, Low-resolution warning। Heavy processing Web Worker-এ পাঠাবেনে।• 
+• Step 9: Autosave System
+Local autosave (IndexedDB) এবেং Server autosave (Send compressed JSON)।
+Step 10: Preview Generation
+Instant preview (browser PNG/WebP) এবেং Production preview (Backend worker high-resolution
+rendering)।
+Step 11: Print-Ready Export
+Print width ও desired DPI থক output pixels calculate করবেনে:
+Pixel Width  = Print Width in Inches × DPI
+Pixel Height = Print Height in Inches × DPI
+Production manifest
+{
+  "designId": "DES-10001",
+  "product": "Premium T-Shirt",
+  "variant": "Black / XL",
+  "printMethod": "DTG",
+  "views": [
+    {
+      "name": "front",
+      "widthInches": 12,
+      "heightInches": 16,
+      "dpi": 300,
+      "file": "print-front.png"
+    }
+  ]
+}
+৭. Background Job Technology
+Redis + BullMQ। এই কাজগুলা API request-এর মধ্যে করবেনে নো: High-resolution export, Image optimization,
+Background removal, Mockup generation, PDF generation, Shopify product bulk sync, Email
+notification।Main Export Job
+├── Front Print Export
+├── Back Print Export
+├── Preview Generation
+└── Production Manifest
+৮. Dynamic Pricing System
+MongoDB-তৈ pricing rules রাখবেনে। Price অবেশধ্যেই backend থক calculate করবেনে।
+{
+  "basePrice": 25,
+  "rules": [
+    { "type": "additional_view", "amount": 5 },
+    { "type": "background_removal", "amount": 3 },
+    { "type": "premium_material", "amount": 8 }
+  ]
+}
+৯. Add to Cart Flow
+Customer clicks Add to Cart
+        ↓
+Validate design
+        ↓
+Create locked design version
+        ↓
+Create export job
+        ↓
+Generate preview
+        ↓
+Calculate final price
+        ↓
+Add Shopify merchandise line
+        ↓
+Attach design information
+        ↓
+Redirect/open Shopify cart১০. Shopify Order Webhook Flow
+Shopify Order Created Webhook
+        ↓
+Verify Webhook HMAC
+        ↓
+Check Event Idempotency
+        ↓
+Read Design ID
+        ↓
+Create CustomOrder
+        ↓
+Lock Design
+        ↓
+Generate Final Print Files
+        ↓
+Notify Production Admin
+১১. Production Dashboard
+Admin খতৈ পারবে: New customization orders, Design preview, Front/back print files, Customer notes,
+Product variant, Print dimensions, Resolution warnings, Export job progress, Payment status,
+Production status, Shipping status।
+Order status: New → Design Validation → File Preparation → Ready for Production → In Production →
+Quality Check → Packed → Shipped → Delivered
+১২. Real-Time Status
+Real-time update-এর জনেধ্যে বেধ্যেবেহার করতৈ পারনে: Socket.IO, Server-Sent Events, MongoDB Change Streams,
+BullMQ QueueEvents।
+১৩. Security Features
+HTTP-only secure cookie, JWT/session rotation, Role-based permissions, Zod request validation, Rate
+limiting, Helmet security headers, Strict CORS, Shopify webhook HMAC verification, File signature
+validation, SVG sanitization, Presigned upload URLs, Short-lived download URLs, Idempotency key,
+Audit logs, Admin 2FA, Private S3 bucket।১৪. Performance Optimization
+Frontend:  Canvas editor dynamic import, Disable SSR for canvas, Memoized toolbar , Debounced
+autosave, Lazy-load cliparts, Web Worker processing, Mobile reduced preview.
+Backend:  Redis cache, BullMQ workers, MongoDB indexes, S3/CDN assets, Cursor pagination,
+Compressed Canvas JSON, Idempotency, API vs image workers.
+১৫. Monorepo Structure
+product-customizer/
+├── apps/
+│   ├── web/             # Next.js
+│   ├── api/             # Express.js
+│   └── worker/          # BullMQ + Sharp
+├── packages/
+│   ├── database/        # Mongoose models
+│   ├── canvas-engine/   # Fabric.js logic
+│   ├── shared-types/    # TypeScript types
+│   ├── validation/      # Zod schemas
+│   ├── shopify/         # Shopify API client
+│   └── pricing-engine/
+├── docker/
+├── package.json
+└── turbo.json
+১৬. Development Phase Plan
+Phase 1 — MVP:  Shopify product connect, Product/variant selection, Fabric.js canvas, Upload image,
+Add/edit text, Resize/rotate/delete, Front/back views, Print area, Canvas JSON save, Preview
+generation, Dynamic price, Shopify add to cart, Order webhook, Admin print-file download.
+Phase 2 — Production Ready:  Autosave, Design versioning, Redis/BullMQ, S3 direct upload, High-
+resolution export, Resolution validation, Layers panel, Template system, Saved design library, Order
+production statuses, Real-time job progress, Error monitoring, Audit logs, Webhook idempotency.
+Phase 3 — Advanced Technology:  Real-time 3D preview, AI background removal, AI image
+generation, Smart object alignment, Automatic design quality checking, Collaborative editing, QR-
+code generator , Curved text, Variable-data personalization, Multi-language support, Mobile gesture
+editor , Automated production routing.• 
+• 
+• 
+• 
+• Final Recommended Stack
+Frontend: Next.js + TypeScript + Tailwind + shadcn/ui
+Canvas: Fabric.js
+3D: Three.js + React Three Fiber + Drei
+State: Zustand + TanStack Query
+Backend: Express.js + TypeScript
+Database: MongoDB Atlas + Mongoose
+Storage: Amazon S3 / Cloudflare R2
+Queue: Redis + BullMQ
+Image Processing: Sharp + SVG processing
+Real-time: Socket.IO + MongoDB Change Streams
+Commerce: Shopify Storefront API + Admin API + Webhooks
+Deployment: Vercel frontend, Docker-based API and Worker , MongoDB Atlas, Managed Redis, S3-
+compatible storage
+Part 3: Product Customizer Database Design
+এই structure-টি Next.js + Express.js + MongoDB + Shopify + S3/R2 + Redis/BullMQ ভত্তিক production-
+ready system-এর জনেধ্যে।High-Level Database Architecture
+Store
+ ├── Store Members
+ ├── Customers
+ ├── Products
+ │    ├── Variants
+ │    └── Customizer Config
+ │          ├── Product Views
+ │          ├── Print Areas
+ │          ├── Allowed Tools
+ │          └── Pricing Rule Set
+ │
+ ├── Design Resources
+ │    ├── Fonts
+ │    ├── Cliparts
+ │    └── Templates
+ │
+ ├── Designs
+ │    ├── Current View States
+ │    └── Immutable Versions
+ │          └── Version View States
+ │
+ ├── Shopify Cart Sessions
+ ├── Orders
+ │    └── Order Items
+ │          ├── Locked Design Version
+ │          └── Export Jobs
+ │
+ ├── Assets
+ ├── Webhook Events
+ └── Audit LogsRecommended Collections (1 to 20)
+1. stores
+{
+  _id: ObjectId,
+  name: "Demo Fashion Store",
+  shopDomain: "demo-store.myshopify.com",
+  shopifyShopId: "gid://shopify/Shop/123456",
+  accessTokenEncrypted: "encrypted-value",
+  scopes: ["read_products", "write_products", "read_orders"],
+  currency: "USD",
+  timezone: "America/New_York",
+  plan: { name: "professional", status: "active", trialEndsAt: null },
+  settings: {
+    autosaveInterval: 4000,
+    defaultDpi: 300,
+    maxUploadSizeMb: 25,
+    allowGuestDesigns: true,
+    designExpirationDays: 30
+  },
+  status: "active",
+  installedAt: Date,
+  uninstalledAt: null,
+  createdAt: Date,
+  updatedAt: Date
+}
+// Indexes: { shopDomain: 1 }, { shopifyShopId: 1 }, { status: 1 }2. users
+{
+  _id: ObjectId,
+  name: "John Doe",
+  email: "john@example.com",
+  passwordHash: "...",
+  authProvider: "credentials",
+  providerUserId: null,
+  avatarUrl: null,
+  emailVerifiedAt: Date,
+  status: "active",
+  lastLoginAt: Date,
+  createdAt: Date,
+  updatedAt: Date
+}
+3. store_members
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  userId: ObjectId,
+  role: "admin",
+  permissions: ["products.read", "products.write", "designs.read", "orders.process", 
+"settings.write"],
+  status: "active",
+  createdAt: Date,
+  updatedAt: Date
+}4. customers
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  userId: ObjectId, 
+  shopifyCustomerId: "gid://shopify/Customer/123",
+  guestSessionId: null,
+  firstName: "David",
+  lastName: "Smith",
+  email: "david@example.com",
+  phone: null,
+  totalDesigns: 8,
+  totalOrders: 3,
+  createdAt: Date,
+  updatedAt: Date
+}5. products
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  shopifyProductId: "gid://shopify/Product/123",
+  handle: "custom-t-shirt",
+  title: "Premium Custom T-Shirt",
+  description: "...",
+  vendor: "Demo Brand",
+  productType: "T-Shirt",
+  status: "active",
+  options: [
+    { name: "Color", position: 1, values: ["Black", "White", "Blue"] },
+    { name: "Size", position: 2, values: ["S", "M", "L", "XL"] }
+  ],
+  images: [
+    { shopifyImageId: "gid://shopify/ProductImage/100", url: "https://...", alt: "Black T-
+Shirt" }
+  ],
+  tags: ["customizable", "t-shirt"],
+  customizerEnabled: true,
+  shopifyCreatedAt: Date,
+  shopifyUpdatedAt: Date,
+  lastSyncedAt: Date,
+  createdAt: Date,
+  updatedAt: Date
+}6. product_variants
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  productId: ObjectId,
+  shopifyVariantId: "gid://shopify/ProductVariant/456",
+  title: "Black / XL",
+  sku: "TS-BLK-XL",
+  barcode: null,
+  selectedOptions: { Color: "Black", Size: "XL" },
+  price: 29.99,
+  compareAtPrice: 34.99,
+  currency: "USD",
+  inventoryQuantity: 42,
+  availableForSale: true,
+  imageUrl: "https://...",
+  status: "active",
+  lastSyncedAt: Date,
+  createdAt: Date,
+  updatedAt: Date
+}7. customizer_configs
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  productId: ObjectId,
+  name: "T-Shirt Customizer",
+  version: 3,
+  enabled: true,
+  canvas: { logicalWidth: 1000, logicalHeight: 1200, backgroundColor: "#ffffff" },
+  views: [
+    {
+      key: "front", label: "Front", sortOrder: 1, mockupAssetId: ObjectId,
+      printArea: { x: 0.25, y: 0.18, width: 0.50, height: 0.60 },
+      safeArea: { x: 0.28, y: 0.21, width: 0.44, height: 0.54 },
+      bleed: { top: 0.02, right: 0.02, bottom: 0.02, left: 0.02 },
+      physicalSize: { width: 12, height: 16, unit: "inch", dpi: 300 },
+      enabled: true
+    },
+    {
+      key: "back", label: "Back", sortOrder: 2, mockupAssetId: ObjectId,
+      printArea: { x: 0.25, y: 0.18, width: 0.50, height: 0.60 },
+      physicalSize: { width: 12, height: 16, unit: "inch", dpi: 300 },
+      enabled: true
+    }
+  ],
+  allowedTools: {
+    uploadImage: true, text: true, shapes: true, clipart: true,
+    qrCode: true, curvedText: false, backgroundRemoval: true, imageFilters: true
+  },
+  uploadRules: {
+    allowedMimeTypes: ["image/png", "image/jpeg", "image/webp", "image/svg+xml"],
+    maxFileSizeMb: 25, minimumWidth: 800, minimumHeight: 800, minimumDpi: 150
+  },
+  fontResourceIds: [ObjectId],
+  clipartResourceIds: [ObjectId],
+  pricingRuleSetId: ObjectId,
+  defaultTemplateId: ObjectId,
+  exportSettings: { format: "png", dpi: 300, transparentBackground: true, generateSvg: 
+true, generatePdf: false },
+  createdBy: ObjectId,
+  updatedBy: ObjectId,
+  createdAt: Date,
+  updatedAt: Date
+}8. design_resources
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  type: "clipart",
+  name: "Classic Star",
+  category: "Shapes",
+  assetId: ObjectId,
+  tags: ["star", "shape", "classic"],
+  metadata: { fontFamily: null, fontWeight: null, previewUrl: "https://..." },
+  visibility: "store",
+  status: "active",
+  createdBy: ObjectId,
+  createdAt: Date,
+  updatedAt: Date
+}9. pricing_rule_sets
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  name: "Standard T-Shirt Pricing",
+  currency: "USD",
+  rules: [
+    {
+      id: "front_print", name: "Front Print", type: "view_used",
+      condition: { viewKey: "front", minimumObjectCount: 1 },
+      calculation: { method: "fixed", amount: 0 }
+    },
+    {
+      id: "back_print", name: "Back Print", type: "view_used",
+      condition: { viewKey: "back", minimumObjectCount: 1 },
+      calculation: { method: "fixed", amount: 5 }
+    },
+    {
+      id: "background_removal", name: "Background Removal", type: "service",
+      condition: { serviceKey: "background_removal" },
+      calculation: { method: "fixed", amount: 3 }
+    },
+    {
+      id: "quantity_discount", name: "Bulk Discount", type: "quantity",
+      tiers: [
+        { min: 10, max: 24, discountPercent: 5 },
+        { min: 25, max: 49, discountPercent: 10 },
+        { min: 50, max: null, discountPercent: 15 }
+      ]
+    }
+  ],
+  status: "active",
+  createdAt: Date,
+  updatedAt: Date
+}10. assets
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  customerId: ObjectId,
+  designId: ObjectId,
+  ownerType: "design",
+  ownerId: ObjectId,
+  type: "customer_upload",
+  originalName: "logo.png",
+  mimeType: "image/png",
+  extension: "png",
+  storageProvider: "s3",
+  bucket: "product-customizer",
+  storageKey: "stores/store-id/designs/design-id/logo.png",
+  publicUrl: null,
+  metadata: { width: 2500, height: 2500, dpi: 300, fileSize: 2450000, hasTransparency: 
+true, colorSpace: "sRGB", checksum: "sha256-hash" },
+  processing: { status: "completed", virusScanStatus: "clean", backgroundRemoved: false, 
+optimizedAssetId: null },
+  status: "active",
+  expiresAt: null,
+  createdAt: Date,
+  updatedAt: Date
+}11. designs
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  customerId: ObjectId,
+  guestSessionId: null,
+  productId: ObjectId,
+  variantId: ObjectId,
+  customizerConfigId: ObjectId,
+  title: "My Black T-Shirt Design",
+  activeViewKey: "front",
+  selectedOptions: { Color: "Black", Size: "XL" },
+  status: "draft",
+  currentRevision: 14,
+  latestVersionId: ObjectId,
+  viewSummary: [
+    { viewKey: "front", objectCount: 4, previewAssetId: ObjectId, updatedAt: Date },
+    { viewKey: "back", objectCount: 2, previewAssetId: ObjectId, updatedAt: Date }
+  ],
+  pricing: { productPrice: 29.99, customizationPrice: 5, discount: 0, total: 34.99, 
+currency: "USD" },
+  services: [
+    { key: "background_removal", assetId: ObjectId, price: 3, status: "completed" }
+  ],
+  lastAutosavedAt: Date,
+  lastOpenedAt: Date,
+  expiresAt: Date,
+  createdAt: Date,
+  updatedAt: Date
+}12. design_views
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  designId: ObjectId,
+  viewKey: "front",
+  revision: 14,
+  canvas: {
+    version: "6.0.0",
+    width: 1000,
+    height: 1200,
+    objects: [
+      {
+        id: "object-uuid", type: "textbox", text: "Stay Positive",
+        left: 240, top: 320, width: 520, height: 200,
+        scaleX: 1, scaleY: 1, angle: 0,
+        fill: "#000000", fontFamily: "Montserrat", fontSize: 72,
+        metadata: { locked: false, printable: true, resourceId: null }
+      }
+    ]
+  },
+  canvasStorageAssetId: null,
+  objectCount: 1,
+  previewAssetId: ObjectId,
+  validation: { hasLowResolutionAsset: false, hasOutOfBoundsObject: false, warnings: [] },
+  updatedAt: Date,
+  createdAt: Date
+}13. design_versions
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  designId: ObjectId,
+  versionNumber: 3,
+  source: "add_to_cart",
+  label: "Cart Version",
+  productSnapshot: { productId: ObjectId, shopifyProductId: "gid://shopify/Product/123", 
+title: "Premium Custom T-Shirt" },
+  variantSnapshot: {
+    variantId: ObjectId, shopifyVariantId: "gid://shopify/ProductVariant/456",
+    title: "Black / XL", sku: "TS-BLK-XL", options: { Color: "Black", Size: "XL" }
+  },
+  pricingSnapshot: {
+    basePrice: 29.99,
+    charges: [{ key: "back_print", label: "Back Printing", quantity: 1, unitPrice: 5, 
+total: 5 }],
+    discount: 0, total: 34.99, currency: "USD"
+  },
+  previewAssetIds: [ObjectId],
+  locked: true,
+  lockedAt: Date,
+  createdBy: ObjectId,
+  createdAt: Date
+}
+14. design_version_views
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  designVersionId: ObjectId,
+  viewKey: "front",
+  canvasJSON: { version: "6.0.0", objects: [] },
+  canvasStorageAssetId: null,
+  previewAssetId: ObjectId,
+  printFileAssetId: null,
+  physicalSize: { width: 12, height: 16, unit: "inch", dpi: 300 },
+  checksum: "sha256-hash",
+  createdAt: Date
+}15. cart_sessions
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  customerId: ObjectId,
+  shopifyCartId: "gid://shopify/Cart/abc123",
+  status: "active",
+  lines: [
+    {
+      shopifyCartLineId: "gid://shopify/CartLine/line123",
+      productId: ObjectId,
+      variantId: ObjectId,
+      designId: ObjectId,
+      designVersionId: ObjectId,
+      quantity: 1,
+      pricingSnapshot: { basePrice: 29.99, customizationPrice: 5, total: 34.99 }
+    }
+  ],
+  checkoutUrl: "https://...",
+  expiresAt: Date,
+  createdAt: Date,
+  updatedAt: Date
+}16. orders
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  customerId: ObjectId,
+  shopifyOrderId: "gid://shopify/Order/987",
+  shopifyOrderNumber: "#1054",
+  email: "customer@example.com",
+  financialStatus: "paid",
+  fulfillmentStatus: "unfulfilled",
+  currency: "USD",
+  subtotalPrice: 34.99,
+  totalDiscount: 0,
+  totalTax: 2.80,
+  totalPrice: 37.79,
+  shippingAddress: {
+    firstName: "David", lastName: "Smith", address1: "123 Main Street",
+    city: "New York", province: "NY", postalCode: "10001", country: "US"
+  },
+  productionStatus: "pending",
+  placedAt: Date,
+  cancelledAt: null,
+  createdAt: Date,
+  updatedAt: Date
+}17. order_items
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  orderId: ObjectId,
+  shopifyLineItemId: "gid://shopify/LineItem/100",
+  productId: ObjectId,
+  variantId: ObjectId,
+  designId: ObjectId,
+  designVersionId: ObjectId,
+  title: "Premium Custom T-Shirt",
+  variantTitle: "Black / XL",
+  sku: "TS-BLK-XL",
+  quantity: 1,
+  priceSnapshot: {
+    basePrice: 29.99,
+    customizationCharges: [{ key: "back_print", label: "Back Printing", amount: 5 }],
+    unitPrice: 34.99, lineTotal: 34.99, currency: "USD"
+  },
+  previewAssetIds: [ObjectId],
+  printFileAssetIds: [ObjectId],
+  production: {
+    status: "pending",
+    assignedTo: null,
+    history: [{ status: "pending", changedBy: null, changedAt: Date }]
+  },
+  createdAt: Date,
+  updatedAt: Date
+}18. export_jobs
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  designId: ObjectId,
+  designVersionId: ObjectId,
+  orderItemId: ObjectId,
+  bullJobId: "export-12345",
+  type: "production_export",
+  status: "queued",
+  progress: 0,
+  input: { viewKeys: ["front", "back"], format: "png", dpi: 300, transparentBackground: 
+true },
+  output: { previewAssetIds: [], printFileAssetIds: [], manifestAssetId: null },
+  attempts: 0,
+  maxAttempts: 3,
+  error: null,
+  startedAt: null,
+  completedAt: null,
+  createdAt: Date,
+  updatedAt: Date
+}
+19. webhook_events
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  shopifyWebhookId: "webhook-event-id",
+  topic: "orders/create",
+  shopDomain: "demo-store.myshopify.com",
+  payloadHash: "sha256-hash",
+  payloadAssetId: null,
+  status: "received",
+  attempts: 0,
+  error: null,
+  receivedAt: Date,
+  processedAt: null,
+  createdAt: Date,
+  updatedAt: Date
+}20. audit_logs
+{
+  _id: ObjectId,
+  storeId: ObjectId,
+  userId: ObjectId,
+  action: "order.production_status_changed",
+  entityType: "order_item",
+  entityId: ObjectId,
+  before: { status: "pending" },
+  after: { status: "in_production" },
+  metadata: { ipAddress: "127.0.0.1", userAgent: "Chrome", requestId: "request-uuid" },
+  createdAt: Date
+}
+Database Relationship Diagram
+erDiagram
+    STORES ||--o{ STORE_MEMBERS : has
+    USERS ||--o{ STORE_MEMBERS : belongs_to
+    STORES ||--o{ CUSTOMERS : has
+    USERS ||--o| CUSTOMERS : linked_to
+    STORES ||--o{ PRODUCTS : owns
+    PRODUCTS ||--o{ PRODUCT_VARIANTS : has
+    PRODUCTS ||--o| CUSTOMIZER_CONFIGS : configured_by
+    CUSTOMIZER_CONFIGS }o--|| PRICING_RULE_SETS : uses
+    STORES ||--o{ DESIGN_RESOURCES : owns
+    CUSTOMERS ||--o{ DESIGNS : creates
+    PRODUCTS ||--o{ DESIGNS : customized_as
+    PRODUCT_VARIANTS ||--o{ DESIGNS : selected_in
+    DESIGNS ||--o{ DESIGN_VIEWS : has
+    DESIGNS ||--o{ DESIGN_VERSIONS : versions
+    DESIGN_VERSIONS ||--o{ DESIGN_VERSION_VIEWS : contains
+    DESIGNS ||--o{ ASSETS : uses
+    DESIGN_VERSIONS ||--o{ EXPORT_JOBS : exported_by
+    CUSTOMERS ||--o{ CART_SESSIONS : owns
+    DESIGN_VERSIONS ||--o{ CART_SESSIONS : attached_to
+    CUSTOMERS ||--o{ ORDERS : places
+    ORDERS ||--o{ ORDER_ITEMS : contains
+    DESIGN_VERSIONS ||--o{ ORDER_ITEMS : fulfills
+    ORDER_ITEMS ||--o{ EXPORT_JOBS : requires
+    STORES ||--o{ WEBHOOK_EVENTS : receives
+    STORES ||--o{ AUDIT_LOGS : recordsCritical Design Flow
+Design Autosave Flow
+Canvas change
+   ↓
+Frontend debounce
+   ↓
+Update design_views
+   ↓
+Increment designs.currentRevision
+   ↓
+Generate low-resolution preview
+   ↓
+Update designs.viewSummary
+এই operation transaction-এর মধ্যে করা উচেতৈ।
+Add to Cart Flow
+Validate current design
+        ↓
+Calculate price on backend
+        ↓
+Create design_versions
+        ↓
+Copy current states to design_version_views
+        ↓
+Mark version locked
+        ↓
+Create/update cart_sessions
+        ↓
+Add Design ID and Version ID to Shopify cart
+Cart-এ mutable designId ছাড়াও locked designVersionId রাখতৈ হবে।Order Creation Flow
+Shopify orders/create webhook
+        ↓
+Verify HMAC
+        ↓
+Check webhook_events unique ID
+        ↓
+Create orders
+        ↓
+Create order_items
+        ↓
+Attach locked designVersionId
+        ↓
+Create export_jobs
+        ↓
+Generate production files
+Transaction Boundaries
+Transaction 1: Save Design
+Update design_views, Update designs.currentRevision, Update designs.lastAutosavedAt
+Transaction 2: Lock Design Version
+Create design_versions, Create design_version_views, Update designs.latestVersionId, Update
+designs.status
+Transaction 3: Order Webhook
+Create webhook_events, Create orders, Create order_items, Create export_jobs
+MongoDB বনোম Object Storage
+MongoDB-তে থোকব:  User information, Product metadata, Design metadata, Pricing rules, Small
+canvas JSON, Order information, Job status, File metadata
+S3/R2-তে থোকব:  Customer uploaded images, Mockup images, Fonts, Clipart SVG, Large canvas
+JSON, Preview images, High-resolution print files, PDF, Production manifest
+Redis-এ থোকব:  BullMQ jobs, Cache, Rate-limit counters, Temporary sessions, WebSocket presence,
+Short-lived locks• 
+• 
+• 
+• 
+• 
+• Recommended Status Enums
+type DesignStatus = "draft" | "saved" | "cart_locked" | "ordered" | "archived" | "expired";
+type ExportJobStatus = "queued" | "processing" | "completed" | "failed" | "cancelled";
+type ProductionStatus = "pending" | "design_validation" | "file_preparation" | 
+"ready_for_production" | "in_production" | "quality_check" | "packed" | "shipped" | 
+"delivered" | "cancelled";
+Suggested Implementation Order
+stores
+users + store_members
+products + product_variants
+customizer_configs
+assets
+designs + design_views
+design_versions + design_version_views
+pricing_rule_sets
+cart_sessions
+orders + order_items
+export_jobs
+webhook_events
+audit_logs
+সবচেয় গুরুত্বপূর্ণ design decision হলেো:  editable design এবেং ordered design snapshot আলাা রাখা।
+Customer পর design edit করলও order-এর designVersionId অপরবেতৈ র্দি তৈ থাকবে, ফল production team
+সবেসময় order করার সময়কার exact design file পাবে।1. 
+2. 
+3. 
+4. 
+5. 
+6. 
+7. 
+8. 
+9. 
+10. 
+11. 
+12. 
+13. 
