@@ -6,3 +6,5 @@ export * from "./models/product-variant.model.js";
 export * from "./models/asset.model.js";
 export * from "./models/design-resource.model.js";
 export * from "./models/customizer-config.model.js";
+export * from "./models/design.model.js";
+export * from "./models/design-view.model.js";
