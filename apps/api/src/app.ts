@@ -9,6 +9,11 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+// Root path confirmation
+app.get("/", (_req, res) => {
+    res.send("Product Customization API is running!");
+});
+
 app.get("/api/v1/health", (_req, res) => {
     const databaseConnected =
         mongoose.connection.readyState === 1;

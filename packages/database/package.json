@@ -1,0 +1,26 @@
+{
+    "name": "@shabu/database",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "mongoose": "^9.9.2"
+    },
+    "devDependencies": {
+        "typescript": "^5.9.3",
+        "@types/node": "^20.19.43"
+    }
+}
