@@ -1,4 +1,4 @@
-# Product Customizer Development Rules
+# Product Customization Development Rules
 
 This project is a TypeScript monorepo.
 
