@@ -80,10 +80,26 @@ export default function CustomizerPage() {
                         <Check className="w-4 h-4" /> All changes saved
                     </div>
 
-                    <Button variant="outline" size="sm" className="h-9 font-medium text-slate-700 bg-white"><Eye className="w-4 h-4 mr-2" /> Preview</Button>
+                    <Button variant="outline" size="sm" className="h-9 font-medium text-slate-700 bg-white" onClick={() => {
+                        const canvas = (window as any).canvas;
+                        if (canvas) {
+                            const dataUrl = canvas.toDataURL({ format: 'png', quality: 1, multiplier: 2 });
+                            const w = window.open();
+                            if (w) w.document.write(`<img src="${dataUrl}" style="max-width: 100%; border: 1px solid #ccc; margin: 20px auto; display: block;" />`);
+                        }
+                    }}><Eye className="w-4 h-4 mr-2" /> Preview</Button>
                     <Button variant="outline" size="sm" className="h-9 font-medium text-slate-700 bg-white"><Share2 className="w-4 h-4 mr-2" /> Share</Button>
-                    <Button size="sm" className="h-9 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 ml-2">
-                        <ShoppingCart className="w-4 h-4 mr-2" /> Add to Cart
+                    <Button size="sm" className="h-9 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 ml-2" onClick={() => {
+                        const canvas = (window as any).canvas;
+                        if (canvas) {
+                            const dataUrl = canvas.toDataURL({ format: 'png', quality: 1, multiplier: 2 });
+                            const a = document.createElement('a');
+                            a.href = dataUrl;
+                            a.download = 'shabu-design.png';
+                            a.click();
+                        }
+                    }}>
+                        <ShoppingCart className="w-4 h-4 mr-2" /> Add to Cart (Save UI)
                     </Button>
                     <Button variant="ghost" size="icon" className="text-slate-600 ml-1">
                         <Menu className="w-6 h-6" />
@@ -257,8 +273,8 @@ function ToolButton({ icon, label, active, onClick }: { icon: React.ReactNode; l
         <button
             onClick={onClick}
             className={`w-[72px] h-[72px] flex flex-col items-center justify-center gap-1.5 rounded-xl transition-all ${active
-                    ? "bg-indigo-50 text-indigo-700"
-                    : "bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                ? "bg-indigo-50 text-indigo-700"
+                : "bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800"
                 }`}
         >
             <div className={`[&>svg]:w-[22px] [&>svg]:h-[22px] [&>svg]:stroke-[1.5px] ${active ? "text-indigo-600" : ""}`}>

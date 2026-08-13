@@ -103,6 +103,33 @@ export function LeftContextPanel() {
         }
     };
 
+    const handleAddShape = (type: 'rect' | 'circle' | 'triangle') => {
+        if (!canvasRef) return;
+        const center = canvasRef.getCenter();
+        let shape;
+        const commonProps = {
+            left: center.left / canvasRef.getZoom(),
+            top: center.top / canvasRef.getZoom(),
+            fill: '#4f46e5',
+            originX: 'center',
+            originY: 'center',
+        };
+
+        if (type === 'rect') {
+            shape = new (window as any).fabric.Rect({ ...commonProps, width: 150, height: 150 });
+        } else if (type === 'circle') {
+            shape = new (window as any).fabric.Circle({ ...commonProps, radius: 75 });
+        } else if (type === 'triangle') {
+            shape = new (window as any).fabric.Triangle({ ...commonProps, width: 150, height: 150 });
+        }
+
+        if (shape) {
+            canvasRef.add(shape);
+            canvasRef.setActiveObject(shape);
+            canvasRef.renderAll();
+        }
+    };
+
     if (activeTool === "text") {
         return (
             <div className="p-5 flex flex-col gap-4 h-full">
@@ -187,6 +214,34 @@ export function LeftContextPanel() {
                     <span className="text-sm font-semibold text-slate-700 block text-center">Click to browse<br />or drag file here</span>
                     <span className="text-xs text-slate-500 mt-2">Max limit: 5MB</span>
                 </label>
+            </div>
+        );
+    }
+
+    if (activeTool === "shapes") {
+        return (
+            <div className="p-5 flex flex-col gap-4 h-full">
+                <h2 className="font-semibold text-lg text-slate-900 mb-2">Basic Shapes</h2>
+                <div className="grid grid-cols-3 gap-3">
+                    <div
+                        className="w-full aspect-square bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 text-slate-700 hover:text-indigo-600 transition-colors"
+                        onClick={() => handleAddShape('rect')}
+                    >
+                        <div className="w-10 h-10 bg-currentColor rounded-sm"></div>
+                    </div>
+                    <div
+                        className="w-full aspect-square bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 text-slate-700 hover:text-indigo-600 transition-colors"
+                        onClick={() => handleAddShape('circle')}
+                    >
+                        <div className="w-10 h-10 bg-currentColor rounded-full"></div>
+                    </div>
+                    <div
+                        className="w-full aspect-square bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 text-slate-700 hover:text-indigo-600 transition-colors"
+                        onClick={() => handleAddShape('triangle')}
+                    >
+                        <div className="w-0 h-0 border-l-[20px] border-l-transparent border-r-[20px] border-r-transparent border-b-[35px] border-b-currentColor"></div>
+                    </div>
+                </div>
             </div>
         );
     }
