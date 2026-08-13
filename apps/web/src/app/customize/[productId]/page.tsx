@@ -4,10 +4,15 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { FabricCanvas } from "@/components/canvas/FabricCanvas";
+import dynamic from "next/dynamic";
 import { PropertiesPanel } from "@/components/canvas/PropertiesPanel";
 import { LeftContextPanel } from "@/components/canvas/LeftContextPanel";
 import { useCustomizerStore } from "@/store/useCustomizerStore";
+
+const FabricCanvas = dynamic(
+    () => import("@/components/canvas/FabricCanvas").then((mod) => mod.FabricCanvas),
+    { ssr: false, loading: () => <div className="animate-pulse bg-slate-200 w-full h-full rounded"></div> }
+);
 import {
     ArrowLeft, Undo2, Redo2, Check, Eye, Share2, ShoppingCart,
     Menu, LayoutTemplate, Type, Image as ImageIcon, Box,
