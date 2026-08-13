@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Design, DesignVersion, Product, Store, CustomizerConfig } from "@shabu/database";
+import { Design, DesignVersion, Product, Store, CustomizerConfig, Asset } from "@shabu/database";
 import mongoose from "mongoose";
 
 const router = Router();
@@ -40,6 +40,22 @@ router.post("/", async (req, res) => {
 
         await design.save();
 
+        // Create an Asset for the preview image
+        const asset = new Asset({
+            storeId: product.storeId,
+            ownerType: "design",
+            type: "preview",
+            originalName: "preview.png",
+            mimeType: "image/png",
+            extension: "png",
+            storageProvider: "local",
+            bucket: "local",
+            storageKey: "mock-key",
+            publicUrl: previewImage, // Base64 for the vertical slice
+            metadata: { fileSize: 0 }
+        });
+        await asset.save();
+
         // Create a frozen version
         const version = new DesignVersion({
             storeId: product.storeId,
@@ -57,6 +73,7 @@ router.post("/", async (req, res) => {
                 title: "Default Title",
                 options: {}
             },
+            previewAssetIds: [asset._id],
             pricingSnapshot: {
                 basePrice: 19.99,
                 charges: [{ key: "customization", label: "Custom Print", quantity: 1, unitPrice: 5.00, total: 5.00 }],
@@ -90,6 +107,28 @@ router.post("/", async (req, res) => {
     } catch (err: any) {
         console.error("Error saving design:", err);
         res.status(500).json({ message: "Internal server error", error: err.message });
+    }
+});
+
+// Fetch designs (Orders)
+router.get("/", async (req, res) => {
+    try {
+        const designs = await Design.find()
+            .sort({ createdAt: -1 })
+            .populate('productId')
+            .populate({
+                path: 'latestVersionId',
+                populate: { path: 'previewAssetIds' }
+            })
+            .limit(50)
+            .exec();
+
+        res.json({
+            success: true,
+            data: designs
+        });
+    } catch (err: any) {
+        res.status(500).json({ message: "Error fetching designs", error: err.message });
     }
 });
 

@@ -2,10 +2,10 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Package, Settings, ShoppingBag } from 'lucide-react';
 import { ProductsPage } from './pages/ProductsPage';
+import { OrdersPage } from './pages/OrdersPage';
 
 // Placeholders for actual pages
 const Dashboard = () => <div className="p-8"><h1>Dashboard</h1><p>Welcome to the customizer admin.</p></div>;
-const Orders = () => <div className="p-8"><h1>Orders</h1><p>Download customer print files here.</p></div>;
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -48,7 +48,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/products" element={<ProductsPage />} />
-          <Route path="/orders" element={<Orders />} />
+          <Route path="/orders" element={<OrdersPage />} />
         </Routes>
       </AppLayout>
     </BrowserRouter>
