@@ -6,6 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { FabricCanvas } from "@/components/canvas/FabricCanvas";
 import { PropertiesPanel } from "@/components/canvas/PropertiesPanel";
+import {
+    ArrowLeft, Undo2, Redo2, Check, Eye, Share2, ShoppingCart,
+    Menu, LayoutTemplate, Type, Image as ImageIcon, Box,
+    Sticker, QrCode, UploadCloud, Layers, Square, Puzzle,
+    Hand, MousePointer2, Minus, Plus, Grid, HelpCircle
+} from "lucide-react";
 
 // Replace with dynamic environment variable in production
 const getApiUrl = () => {
@@ -18,7 +24,6 @@ const getApiUrl = () => {
 export default function CustomizerPage() {
     const { productId } = useParams<{ productId: string }>();
 
-    // Load product base details
     const { data: product, isLoading: loadingProduct } = useQuery({
         queryKey: ["product", productId],
         queryFn: async () => {
@@ -28,7 +33,6 @@ export default function CustomizerPage() {
         }
     });
 
-    // Load customizer setup rules for this specific product
     const { data: config, isLoading: loadingConfig } = useQuery({
         queryKey: ["config", productId],
         queryFn: async () => {
@@ -42,11 +46,11 @@ export default function CustomizerPage() {
     const handleAddText = () => {
         const canvas = (window as any).canvas;
         if (canvas) {
-            const text = new (window as any).fabric.IText('Hello Shabu!', {
+            const text = new (window as any).fabric.IText('Your Text', {
                 left: canvas.width / 2 / canvas.getZoom(),
                 top: canvas.height / 2 / canvas.getZoom(),
-                fontFamily: 'arial',
-                fill: '#333',
+                fontFamily: 'Poppins',
+                fill: '#333333',
                 fontSize: 40,
                 originX: 'center',
                 originY: 'center'
@@ -65,19 +69,13 @@ export default function CustomizerPage() {
             reader.onload = (f) => {
                 const data = f.target?.result;
                 (window as any).fabric.Image.fromURL(data as string, (img: any) => {
-                    // Scale down if too large
-                    if (img.width > canvas.width) {
-                        img.scaleToWidth(canvas.width * 0.5);
-                    }
-
-                    // Center it
+                    if (img.width > canvas.width) img.scaleToWidth(canvas.width * 0.5);
                     img.set({
                         left: canvas.width / 2 / canvas.getZoom(),
                         top: canvas.height / 2 / canvas.getZoom(),
                         originX: 'center',
                         originY: 'center'
                     });
-
                     canvas.add(img);
                     canvas.setActiveObject(img);
                     canvas.renderAll();
@@ -89,78 +87,182 @@ export default function CustomizerPage() {
 
     if (loadingProduct || loadingConfig) {
         return (
-            <div className="flex h-screen items-center justify-center" suppressHydrationWarning>
-                <div className="text-lg font-medium animate-pulse">Initializing Customizer Workstation...</div>
+            <div className="flex h-screen items-center justify-center bg-slate-50" suppressHydrationWarning>
+                <div className="text-lg font-medium animate-pulse text-indigo-600">Loading editor...</div>
             </div>
         );
     }
 
-    if (!product) {
-        return <div className="text-red-500 m-10 text-center">Failed to load product.</div>;
-    }
-
-    // Active view defaults to the first view in config
-    const activeView = config?.views?.[0];
-
     return (
-        <div className="flex flex-col h-screen overflow-hidden bg-slate-50 relative text-slate-800">
+        <div className="flex flex-col h-screen w-full bg-white text-slate-800 overflow-hidden font-sans">
 
-            {/* 1. HEADER */}
-            <header className="h-16 px-6 bg-white border-b border-slate-200 flex items-center justify-between shrink-0 z-10">
+            {/* 1. TOP HEADER */}
+            <header className="h-[60px] px-4 flex items-center justify-between border-b border-slate-200 shrink-0 bg-white z-20 shadow-sm">
                 <div className="flex items-center gap-4">
-                    <Button variant="ghost" className="font-semibold text-slate-600 hover:text-slate-900">&larr; Back</Button>
-                    <Separator orientation="vertical" className="h-6" />
-                    <h2 className="font-bold text-lg">{product.title || "Unknown Product"}</h2>
-                    {config?.name && <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-1 rounded-sm">Using Config: {config.name}</span>}
+                    <Button variant="ghost" size="icon" className="text-slate-500 hover:text-slate-800">
+                        <ArrowLeft className="w-5 h-5" />
+                    </Button>
+                    <div className="flex flex-col">
+                        <h1 className="font-semibold text-[15px] leading-tight text-slate-900">
+                            {product?.title || "Business Card"}
+                        </h1>
+                        <span className="text-[12px] text-slate-500 leading-tight block mt-0.5">3.5 × 2 in</span>
+                    </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" className="bg-slate-50 hover:bg-slate-100">Undo</Button>
-                    <Button variant="outline" size="sm" className="bg-slate-50 hover:bg-slate-100">Redo</Button>
-                    <Separator orientation="vertical" className="h-6 mx-2" />
-                    <Button variant="outline" size="sm" className="bg-white">Preview</Button>
-                    <Button variant="outline" size="sm" className="bg-white">Save</Button>
-                    <Button size="sm" className="bg-black text-white px-6">Add to Cart</Button>
+                    <Button variant="ghost" size="sm" className="text-slate-600 h-9 px-3"><Undo2 className="w-4 h-4 mr-2" /> Undo</Button>
+                    <Button variant="ghost" size="sm" className="text-slate-600 h-9 px-3"><Redo2 className="w-4 h-4 mr-2" /> Redo</Button>
+                    <div className="flex items-center gap-2 ml-2 text-emerald-600 text-sm font-medium mr-6">
+                        <Check className="w-4 h-4" /> All changes saved
+                    </div>
+
+                    <Button variant="outline" size="sm" className="h-9 font-medium text-slate-700 bg-white"><Eye className="w-4 h-4 mr-2" /> Preview</Button>
+                    <Button variant="outline" size="sm" className="h-9 font-medium text-slate-700 bg-white"><Share2 className="w-4 h-4 mr-2" /> Share</Button>
+                    <Button size="sm" className="h-9 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 ml-2">
+                        <ShoppingCart className="w-4 h-4 mr-2" /> Add to Cart
+                    </Button>
+                    <Button variant="ghost" size="icon" className="text-slate-600 ml-1">
+                        <Menu className="w-6 h-6" />
+                    </Button>
                 </div>
             </header>
 
-            {/* MAIN WORKSPACE REGION */}
+            {/* 2. MAIN LAYOUT FLEX */}
             <div className="flex flex-1 overflow-hidden relative">
 
-                {/* 2. LEFT PANEL - TOOLS */}
-                <aside className="w-20 md:w-64 bg-white border-r border-slate-200 flex flex-col pt-4 shrink-0 overflow-y-auto z-20">
-                    <div className="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 hidden md:block">
-                        Tools
-                    </div>
-                    <div className="flex flex-col gap-1 px-2">
-                        <Button variant="ghost" className="justify-start text-sm" onClick={handleAddText}>Aa Add Text</Button>
-                        <label className="flex">
-                            <input type="file" accept="image/png, image/jpeg" className="hidden" onChange={handleAddImage} />
-                            <Button variant="ghost" className="justify-start text-sm w-full pointer-events-none">🖼️ Image Upload</Button>
-                        </label>
-                        <Button variant="ghost" className="justify-start text-sm">📐 Shapes</Button>
-                        <Button variant="ghost" className="justify-start text-sm">🎨 Graphics</Button>
+                {/* A. VERY LEFT PRIMARY TOOLBAR */}
+                <aside className="w-[84px] bg-white border-r border-slate-200 flex flex-col items-center py-4 gap-1 shrink-0 z-20">
+                    <ToolButton icon={<LayoutTemplate />} label="Templates" active />
+                    <ToolButton icon={<Type />} label="Text" />
+                    <ToolButton icon={<ImageIcon />} label="Images" />
+                    <ToolButton icon={<Box />} label="Shapes" />
+                    <ToolButton icon={<Sticker />} label="Clipart" />
+                    <ToolButton icon={<QrCode />} label="QR Code" />
+                    <ToolButton icon={<UploadCloud />} label="Uploads" />
+                    <ToolButton icon={<Layers />} label="Layers" />
+                    <ToolButton icon={<Square />} label="Background" />
+                    <ToolButton icon={<Puzzle />} label="Elements" />
+                </aside>
+
+                {/* B. SECONDARY CONTEXT PANEL */}
+                <aside className="w-[300px] bg-white border-r border-slate-200 flex flex-col shrink-0 z-10 overflow-y-auto">
+                    <div className="p-5 flex flex-col gap-4">
+                        <div className="flex items-center justify-between">
+                            <h2 className="font-semibold text-lg text-slate-900">Text</h2>
+                            <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm px-4 h-9" onClick={handleAddText}>
+                                Add Text
+                            </Button>
+                        </div>
+
+                        <div className="mt-2 space-y-4">
+                            <div>
+                                <label className="text-sm font-semibold text-slate-800 mb-2 block">Font</label>
+                                <select className="w-full border border-slate-200 rounded-md h-10 px-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none">
+                                    <option>Poppins</option>
+                                </select>
+                                <div className="flex gap-2 mt-2">
+                                    <select className="flex-1 border border-slate-200 rounded-md h-10 px-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none">
+                                        <option>Regular</option>
+                                    </select>
+                                    <select className="w-20 border border-slate-200 rounded-md h-10 px-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none">
+                                        <option>24</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between gap-1 p-1 bg-slate-50 border border-slate-100 rounded-md">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-indigo-600 bg-indigo-50 font-serif font-bold">B</Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600 font-serif italic">I</Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600 font-serif underline decoration-1 text-lg">U</Button>
+                                <Separator orientation="vertical" className="h-5" />
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600">≡</Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600">≡</Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600">≡</Button>
+                                <Separator orientation="vertical" className="h-5" />
+                                <div className="h-6 w-6 rounded bg-black ml-1 border border-slate-300"></div>
+                            </div>
+
+                            <div>
+                                <div className="flex items-center justify-between mb-3">
+                                    <h3 className="text-sm font-semibold text-slate-800">Recently Used</h3>
+                                    <span className="text-xs text-indigo-600 cursor-pointer font-medium hover:underline">See all</span>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="border border-slate-200 rounded-lg p-3 text-center cursor-pointer hover:border-indigo-400">
+                                        <div className="text-lg font-serif">John Smith</div>
+                                        <div className="text-[10px] text-slate-500 uppercase mt-1">Managing Director</div>
+                                    </div>
+                                    <div className="border border-slate-200 rounded-lg p-3 text-center cursor-pointer hover:border-indigo-400 flex flex-col justify-center items-center font-bold text-indigo-900 leading-tight">
+                                        BRAND<span className="text-[8px] font-normal tracking-widest text-slate-500 uppercase mt-1 block">Tagline Here</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div className="flex items-center justify-between mb-3 mt-2">
+                                    <h3 className="text-sm font-semibold text-slate-800">Font Family</h3>
+                                    <span className="text-xs text-indigo-600 cursor-pointer font-medium hover:underline">See all</span>
+                                </div>
+                                <input type="text" placeholder="Search fonts..." className="w-full border border-slate-200 rounded-md h-10 px-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none mb-3 bg-slate-50" />
+
+                                <div className="flex flex-col gap-1 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
+                                    <div className="flex items-center justify-between px-3 py-2 bg-indigo-50 rounded-md text-indigo-700 cursor-pointer">
+                                        <span className="font-sans">Poppins</span>
+                                        <Check className="w-4 h-4" />
+                                    </div>
+                                    <div className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 rounded-md text-slate-700 cursor-pointer">
+                                        <span className="font-sans">Montserrat</span>
+                                    </div>
+                                    <div className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 rounded-md text-slate-700 cursor-pointer">
+                                        <span className="font-sans">Open Sans</span>
+                                    </div>
+                                    <div className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 rounded-md text-slate-700 cursor-pointer">
+                                        <span className="font-serif">Playfair Display</span>
+                                    </div>
+                                    <div className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 rounded-md text-slate-700 cursor-pointer">
+                                        <span className="font-sans">Raleway</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </aside>
 
-                {/* 3. CENTER PANEL - CANVASES */}
-                <main className="flex-1 bg-slate-100 relative overflow-hidden flex flex-col">
-                    <div className="flex-1 flex items-center justify-center p-8 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-100">
+                {/* C. CENTER CANVAS EXPEREINCE */}
+                <main className="flex-1 flex flex-col relative bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-50 overflow-hidden">
 
+                    {/* Floating Top Toolbar */}
+                    <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-white h-12 rounded-lg shadow-sm border border-slate-200 flex items-center px-2 gap-1 z-20">
+                        <Button variant="ghost" size="icon" className="h-9 w-9 text-orange-500 bg-orange-50 rounded-md"><Hand className="w-5 h-5" /></Button>
+                        <Button variant="ghost" size="icon" className="h-9 w-9 text-indigo-600 bg-indigo-50 rounded-md"><MousePointer2 className="w-5 h-5" /></Button>
+                        <Separator orientation="vertical" className="h-6 mx-1" />
+                        <div className="flex items-center">
+                            <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-500"><Minus className="w-4 h-4" /></Button>
+                            <span className="text-sm font-medium w-12 text-center text-slate-700">100%</span>
+                            <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-500"><Plus className="w-4 h-4" /></Button>
+                        </div>
+                        <Separator orientation="vertical" className="h-6 mx-1" />
+                        <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-500"><Grid className="w-5 h-5" /></Button>
+                        <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-500"><HelpCircle className="w-5 h-5" /></Button>
+                    </div>
+
+                    {/* Canvas Wrapper */}
+                    <div className="flex-1 w-full h-full p-8 pb-32 flex items-center justify-center overflow-auto relative">
                         {!config ? (
-                            <div className="max-w-md w-full bg-white text-center text-slate-400 p-8 border border-slate-300 rounded-lg shadow-sm">
-                                <p className="font-semibold text-lg text-slate-600">No Customization Template Found!</p>
-                                <p className="text-sm mt-2">Admin needs to configure Print Areas and Dimensions for this product.</p>
-                                <Button variant="outline" size="sm" className="mt-8" onClick={async () => {
+                            <div className="bg-white p-8 rounded-lg shadow border border-slate-200 text-center max-w-sm">
+                                <p className="font-semibold text-lg text-slate-800">No Customization Template Found!</p>
+                                <p className="text-sm text-slate-500 mt-2">Admin needs to configure Print Areas and Dimensions for this product.</p>
+                                <Button className="mt-6 w-full bg-indigo-600 hover:bg-indigo-700" onClick={async () => {
                                     await fetch(`${getApiUrl()}/config/${productId}`, {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({
-                                            name: "Default T-Shirt Config",
-                                            canvas: { logicalWidth: 1000, logicalHeight: 1200 },
+                                            name: "Business Card Template",
+                                            canvas: { logicalWidth: 1050, logicalHeight: 600 },
                                             views: [
-                                                { key: "front", label: "Front side", printArea: { x: 0.25, y: 0.2, width: 0.5, height: 0.5 }, physicalSize: { width: 12, height: 16, unit: "inch", dpi: 300 } },
-                                                { key: "back", label: "Back side", printArea: { x: 0.25, y: 0.2, width: 0.5, height: 0.5 }, physicalSize: { width: 12, height: 16, unit: "inch", dpi: 300 } }
+                                                { key: "front", label: "Front", printArea: { x: 0, y: 0, width: 1, height: 1 }, physicalSize: { width: 3.5, height: 2, unit: "inch", dpi: 300 } },
+                                                { key: "back", label: "Back", printArea: { x: 0, y: 0, width: 1, height: 1 }, physicalSize: { width: 3.5, height: 2, unit: "inch", dpi: 300 } }
                                             ]
                                         })
                                     });
@@ -168,43 +270,114 @@ export default function CustomizerPage() {
                                 }}>Seed Default Config</Button>
                             </div>
                         ) : (
-                            <div className="w-full max-w-[800px] aspect-[4/5] relative">
-                                <FabricCanvas
-                                    logicalWidth={config.canvas.logicalWidth}
-                                    logicalHeight={config.canvas.logicalHeight}
-                                    printArea={activeView?.printArea}
-                                />
+                            <div className="shadow-[0_20px_50px_rgba(8,_112,_184,_0.07)] p-[1px] bg-gradient-to-b from-white to-slate-100 relative">
+                                {/* The indicator borders from the screenshot overlaying around the canvas bounds */}
+                                <div className="absolute -inset-4 border border-dashed border-red-400 pointer-events-none"></div>
+                                <div className="absolute -inset-2 border border-dashed border-slate-400 pointer-events-none"></div>
+                                <div className="absolute inset-2 border border-dashed border-emerald-400 pointer-events-none z-10"></div>
+
+                                <div className="w-[1050px] max-w-full aspect-[3.5/2] relative bg-white overflow-hidden"
+                                    style={{ maxWidth: 'calc(100vw - 750px)' }}>
+                                    <FabricCanvas
+                                        logicalWidth={config.canvas.logicalWidth}
+                                        logicalHeight={config.canvas.logicalHeight}
+                                        printArea={undefined} // handled by external border overlay for this UI
+                                    />
+                                </div>
                             </div>
                         )}
                     </div>
 
-                    {/* 4. BOTTOM PANEL - VIEWS & PRICING SUB-NAV */}
-                    <div className="h-16 bg-white border-t border-slate-200 flex items-center justify-between px-6 shrink-0 relative z-10 shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.05)]">
-                        <div className="flex items-center gap-2">
-                            {config?.views?.map((view: any) => (
-                                <Button key={view.key} variant={view.key === activeView?.key ? "default" : "outline"} className="rounded-full px-6">
-                                    {view.label}
-                                </Button>
-                            ))}
-                        </div>
-                        <div className="flex items-center gap-4 py-1 px-4 bg-slate-50 rounded-xl border border-slate-200">
-                            <div className="text-right">
-                                <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Price</div>
-                                <div className="text-xl font-black text-slate-800">$ {product.variants?.[0]?.price?.toFixed(2) || "0.00"}</div>
+                    {/* Floating Bottom Navigation Bar */}
+                    <div className="absolute bottom-0 inset-x-0 h-24 bg-white border-t border-slate-200 flex items-center justify-between px-6 z-20 shadow-[0_-10px_30px_rgba(0,0,0,0.02)]">
+                        {/* Left Views */}
+                        <div className="flex items-center gap-4">
+                            <div className="flex flex-col gap-1 items-center">
+                                <div className="w-24 h-14 bg-white border-2 border-indigo-500 rounded-md p-1 shadow-sm relative cursor-pointer overflow-hidden">
+                                    <div className="w-full h-full bg-slate-900 rounded-sm"></div>
+                                    {/* Mock placeholder */}
+                                </div>
+                                <span className="text-[11px] font-bold text-slate-800">Front</span>
+                            </div>
+                            <div className="flex flex-col gap-1 items-center opacity-60 hover:opacity-100 transition-opacity">
+                                <div className="w-24 h-14 bg-white border border-slate-300 rounded-md p-1 cursor-pointer overflow-hidden">
+                                    <div className="w-full h-full bg-slate-800 rounded-sm"></div>
+                                </div>
+                                <span className="text-[11px] font-semibold text-slate-600">Back</span>
+                            </div>
+                            <div className="flex flex-col gap-1 items-center ml-2">
+                                <div className="w-24 h-14 bg-slate-50 border border-dashed border-slate-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-slate-100 transition-colors text-slate-400">
+                                    <Plus className="w-5 h-5 mb-1" />
+                                </div>
+                                <span className="text-[11px] font-medium text-slate-500 mt-[20px] absolute bottom-[18px]">Add Side</span>
                             </div>
                         </div>
+
+                        {/* Center Zoom Bar */}
+                        <div className="flex flex-col gap-2 items-center w-64 pr-10">
+                            <div className="flex items-center justify-between w-full text-[11px] font-semibold text-slate-700">
+                                <span>Zoom</span>
+                            </div>
+                            <div className="flex items-center w-full gap-3">
+                                <Button variant="outline" size="icon" className="w-7 h-7 rounded"><Minus className="w-3 h-3" /></Button>
+                                <div className="flex-1 h-1.5 bg-slate-100 rounded-full relative">
+                                    <div className="absolute left-0 top-0 h-full w-1/2 bg-indigo-500 rounded-full"></div>
+                                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-indigo-600 rounded-full shadow border-2 border-white"></div>
+                                </div>
+                                <span className="text-xs font-bold w-10 text-right text-slate-800">100%</span>
+                                <Button variant="outline" size="icon" className="w-7 h-7 rounded"><Grid className="w-3 h-3" /></Button>
+                            </div>
+                        </div>
+
+                        {/* Right Size Specifier */}
+                        <div className="flex flex-col gap-2 relative border-l border-slate-200 pl-8">
+                            <div className="flex items-center justify-between w-full text-[11px] font-semibold text-slate-700">
+                                <span>Canvas Size</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="flex items-center border border-slate-200 rounded-md overflow-hidden bg-white h-9 focus-within:ring-1 focus-within:ring-indigo-500">
+                                    <span className="text-xs font-medium text-slate-500 bg-slate-50 px-2 h-full flex items-center border-r border-slate-200">W</span>
+                                    <input type="text" defaultValue="1050" className="w-12 text-sm text-center outline-none font-medium text-slate-700" />
+                                    <span className="text-xs font-medium text-slate-500 bg-slate-50 px-2 h-full flex items-center border-l border-slate-200">px</span>
+                                </div>
+                                <div className="flex items-center border border-slate-200 rounded-md overflow-hidden bg-white h-9 focus-within:ring-1 focus-within:ring-indigo-500">
+                                    <span className="text-xs font-medium text-slate-500 bg-slate-50 px-2 h-full flex items-center border-r border-slate-200">H</span>
+                                    <input type="text" defaultValue="600" className="w-12 text-sm text-center outline-none font-medium text-slate-700" />
+                                    <span className="text-xs font-medium text-slate-500 bg-slate-50 px-2 h-full flex items-center border-l border-slate-200">px</span>
+                                </div>
+                                <Button variant="ghost" size="icon" className="text-slate-400 h-8 w-8 mx-1 hover:text-slate-700">
+                                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 6.5V5C5 3.61929 6.11929 2.5 7.5 2.5C8.88071 2.5 10 3.61929 10 5V6.5H10.5C11.3284 6.5 12 7.17157 12 8V12.5C12 13.3284 11.3284 14 10.5 14H4.5C3.67157 14 3 13.3284 3 12.5V8C3 7.17157 3.67157 6.5 4.5 6.5H5ZM6 6.5H9V5C9 4.17157 8.32843 3.5 7.5 3.5C6.67157 3.5 6 4.17157 6 5V6.5Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
+                                </Button>
+                                <Button size="sm" className="h-9 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 ml-2 shadow-sm rounded-md">
+                                    Fit to Screen
+                                </Button>
+                            </div>
+                        </div>
+
                     </div>
                 </main>
 
-                {/* 5. RIGHT PANEL - PROPERTIES */}
-                <aside className="w-64 bg-white border-l border-slate-200 shrink-0 overflow-y-auto pt-4 shadow-xl z-20">
-                    <div className="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
-                        Component Properties
-                    </div>
+                {/* D. RIGHT PANEL (PROPERTIES) */}
+                <aside className="w-[340px] bg-white border-l border-slate-200 shrink-0 z-20 overflow-y-auto">
                     <PropertiesPanel />
                 </aside>
 
             </div>
         </div>
+    );
+}
+
+// Helper component for the very left toolbar
+function ToolButton({ icon, label, active }: { icon: React.ReactNode; label: string; active?: boolean }) {
+    return (
+        <button className={`w-[72px] h-[72px] flex flex-col items-center justify-center gap-1.5 rounded-xl transition-all ${active
+            ? "bg-indigo-50 text-indigo-700"
+            : "bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+            }`}>
+            <div className={`[&>svg]:w-[22px] [&>svg]:h-[22px] [&>svg]:stroke-[1.5px] ${active ? "text-indigo-600" : ""}`}>
+                {icon}
+            </div>
+            <span className={`text-[10px] tracking-wide ${active ? "font-semibold" : "font-medium"}`}>{label}</span>
+        </button>
     );
 }
