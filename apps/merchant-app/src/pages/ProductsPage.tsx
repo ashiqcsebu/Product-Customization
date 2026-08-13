@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Package, Image as ImageIcon, Save, ScanLine, Edit2 } from 'lucide-react';
 
+declare global {
+    interface Window {
+        dragState: any;
+    }
+}
+
 export function ProductsPage() {
     const [products, setProducts] = useState<any[]>([]);
     const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
@@ -130,34 +136,80 @@ function ProductConfigurator({ productId }: { productId: string }) {
             </div>
 
             <div className="flex-1 overflow-auto p-8 flex gap-8">
-                {/* Fake visual editor mapping for now */}
+                {/* Visual editor mapping */}
                 <div className="flex-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
                     <div className="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
                         <span className="font-semibold text-slate-700 text-sm flex items-center gap-2"><Edit2 className="w-4 h-4" /> Canvas Preview (Front)</span>
                     </div>
-                    <div className="flex-1 bg-slate-100 relative min-h-[500px]" style={{ backgroundImage: 'radial-gradient(circle, #cbd5e1 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
-                        {/* T-Shirt background mockup */}
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30">
-                            <ImageIcon className="w-64 h-64 text-slate-400" />
-                        </div>
+                    <div className="flex-1 bg-slate-200 overflow-auto flex items-center justify-center p-8">
+                        <div
+                            className="relative bg-white shadow-md select-none"
+                            style={{
+                                width: config?.canvasWidth || 800,
+                                height: config?.canvasHeight || 800,
+                                backgroundImage: 'radial-gradient(circle, #cbd5e1 1px, transparent 1px)',
+                                backgroundSize: '20px 20px'
+                            }}
+                            onMouseMove={(e) => {
+                                if (!window.dragState) return;
+                                const state = window.dragState;
+                                const dx = e.clientX - state.startX;
+                                const dy = e.clientY - state.startY;
 
-                        {/* Draggable Print Area Mockup */}
-                        {config?.views?.[0] && (
-                            <div
-                                className="absolute border-2 border-dashed border-indigo-600 bg-indigo-600/10 flex items-center justify-center cursor-move shadow-[0_0_15px_rgba(79,70,229,0.2)]"
-                                style={{
-                                    left: '25%', top: '25%', width: '50%', height: '50%'
-                                }}
-                            >
-                                <span className="bg-indigo-600 text-white text-xs px-2 py-1 rounded font-mono shadow-sm">Print Area (400x400)</span>
+                                let newPrintArea = { ...config.views[0].printArea };
 
-                                {/* Resize handles */}
-                                <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border border-indigo-600 rounded-sm cursor-nwse-resize"></div>
-                                <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border border-indigo-600 rounded-sm cursor-nesw-resize"></div>
-                                <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border border-indigo-600 rounded-sm cursor-nesw-resize"></div>
-                                <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border border-indigo-600 rounded-sm cursor-nwse-resize"></div>
+                                if (state.type === 'move') {
+                                    newPrintArea.x = state.startArea.x + dx;
+                                    newPrintArea.y = state.startArea.y + dy;
+                                } else if (state.type === 'se-resize') {
+                                    newPrintArea.width = state.startArea.width + dx;
+                                    newPrintArea.height = state.startArea.height + dy;
+                                }
+
+                                const newViews = [...config.views];
+                                newViews[0].printArea = newPrintArea;
+                                setConfig({ ...config, views: newViews });
+                            }}
+                            onMouseUp={() => { window.dragState = null; }}
+                            onMouseLeave={() => { window.dragState = null; }}
+                        >
+                            {/* T-Shirt background mockup */}
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-80">
+                                {config?.views?.[0]?.overlayImage ? (
+                                    <img src={config.views[0].overlayImage} alt="Background Overlay" className="max-w-full max-h-full object-contain pointer-events-none" />
+                                ) : (
+                                    <ImageIcon className="w-96 h-96 text-slate-900 opacity-20" />
+                                )}
                             </div>
-                        )}
+
+                            {/* Draggable Print Area */}
+                            {config?.views?.[0] && (
+                                <div
+                                    className="absolute border-2 border-dashed border-indigo-600 bg-indigo-600/10 flex items-center justify-center cursor-move shadow-[0_0_15px_rgba(79,70,229,0.2)]"
+                                    style={{
+                                        left: config.views[0].printArea.x,
+                                        top: config.views[0].printArea.y,
+                                        width: config.views[0].printArea.width,
+                                        height: config.views[0].printArea.height
+                                    }}
+                                    onMouseDown={(e) => {
+                                        e.stopPropagation();
+                                        window.dragState = { type: 'move', startX: e.clientX, startY: e.clientY, startArea: { ...config.views[0].printArea } };
+                                    }}
+                                >
+                                    <span className="bg-indigo-600 text-white text-xs px-2 py-1 rounded font-mono shadow-sm pointer-events-none">Print Area ({config.views[0].printArea.width}x{config.views[0].printArea.height})</span>
+
+                                    {/* Resize handle (bottom-right) */}
+                                    <div
+                                        className="absolute -bottom-2 -right-2 w-4 h-4 bg-white border-2 border-indigo-600 rounded-sm cursor-nwse-resize"
+                                        onMouseDown={(e) => {
+                                            e.stopPropagation();
+                                            window.dragState = { type: 'se-resize', startX: e.clientX, startY: e.clientY, startArea: { ...config.views[0].printArea } };
+                                        }}
+                                    ></div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -166,6 +218,20 @@ function ProductConfigurator({ productId }: { productId: string }) {
                     <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
                         <h3 className="font-bold text-slate-900 mb-4 border-b border-slate-100 pb-2">Canvas Metrics</h3>
                         <div className="space-y-4">
+                            <div>
+                                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">Background Image URL</label>
+                                <input
+                                    type="text"
+                                    className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    placeholder="https://..."
+                                    value={config?.views?.[0]?.overlayImage || ''}
+                                    onChange={(e) => {
+                                        const newViews = [...config.views];
+                                        newViews[0].overlayImage = e.target.value;
+                                        setConfig({ ...config, views: newViews });
+                                    }}
+                                />
+                            </div>
                             <div>
                                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block">Canvas Width</label>
                                 <input type="number" className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" value={config?.canvasWidth || ''} onChange={(e) => setConfig({ ...config, canvasWidth: parseInt(e.target.value) })} />
