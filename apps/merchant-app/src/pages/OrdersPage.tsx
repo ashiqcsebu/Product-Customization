@@ -1,3 +1,4 @@
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 import { useEffect, useState } from 'react';
 import { ShoppingBag, Download, Eye, Clock } from 'lucide-react';
 
@@ -6,7 +7,7 @@ export function OrdersPage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/v1/designs')
+        fetch(`${API_URL}/designs`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {

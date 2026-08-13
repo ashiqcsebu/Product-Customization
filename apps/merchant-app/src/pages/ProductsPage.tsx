@@ -1,3 +1,4 @@
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 import { useEffect, useState } from 'react';
 import { Package, Image as ImageIcon, Save, ScanLine, Edit2 } from 'lucide-react';
 
@@ -13,7 +14,7 @@ export function ProductsPage() {
 
     // Fetch products
     useEffect(() => {
-        fetch('http://localhost:5000/api/v1/products')
+        fetch(`${API_URL}/products`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -79,7 +80,7 @@ function ProductConfigurator({ productId }: { productId: string }) {
 
     useEffect(() => {
         setLoading(true);
-        fetch(`http://localhost:5000/api/v1/config/${productId}`)
+        fetch(`${API_URL}/config/${productId}`)
             .then(res => res.json())
             .then(data => {
                 if (data.success && data.data) {
@@ -104,7 +105,7 @@ function ProductConfigurator({ productId }: { productId: string }) {
 
     const handleSave = async () => {
         try {
-            const res = await fetch(`http://localhost:5000/api/v1/config/${productId}`, {
+            const res = await fetch(`${API_URL}/config/${productId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(config)
