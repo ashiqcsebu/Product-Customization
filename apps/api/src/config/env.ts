@@ -31,6 +31,12 @@ const envSchema = z.object({
     .string()
     .default("product-customizer"),
 
+  // Shopify App Config
+  SHOPIFY_API_KEY: z.string().default("dummy_key_for_dev"),
+  SHOPIFY_API_SECRET: z.string().default("dummy_secret_for_dev"),
+  SHOPIFY_APP_URL: z.string().url().default("https://your-tunnel-url.ngrok.io"),
+  SCOPES: z.string().default("write_products,read_products,write_orders,read_orders,write_draft_orders,read_draft_orders"),
+
   SHOPIFY_STORE_DOMAIN: z
     .string()
     .min(1, "SHOPIFY_STORE_DOMAIN is required (e.g. your-store.myshopify.com)")
