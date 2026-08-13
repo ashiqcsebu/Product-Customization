@@ -7,7 +7,6 @@ import { env } from '../config/env.js';
 export const shopify = shopifyApp({
     api: {
         apiVersion: ApiVersion.April25,
-        restResources: {},
         apiKey: env.SHOPIFY_API_KEY,
         apiSecretKey: env.SHOPIFY_API_SECRET,
         scopes: env.SCOPES.split(','),
