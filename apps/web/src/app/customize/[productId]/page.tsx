@@ -89,17 +89,36 @@ export default function CustomizerPage() {
                         }
                     }}><Eye className="w-4 h-4 mr-2" /> Preview</Button>
                     <Button variant="outline" size="sm" className="h-9 font-medium text-slate-700 bg-white"><Share2 className="w-4 h-4 mr-2" /> Share</Button>
-                    <Button size="sm" className="h-9 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 ml-2" onClick={() => {
+                    <Button size="sm" className="h-9 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 ml-2" onClick={async () => {
                         const canvas = (window as any).canvas;
                         if (canvas) {
-                            const dataUrl = canvas.toDataURL({ format: 'png', quality: 1, multiplier: 2 });
-                            const a = document.createElement('a');
-                            a.href = dataUrl;
-                            a.download = 'shabu-design.png';
-                            a.click();
+                            const dataUrl = canvas.toDataURL({ format: 'png', quality: 0.8, multiplier: 1 });
+                            const canvasData = canvas.toJSON();
+
+                            try {
+                                const res = await fetch(`${getApiUrl()}/designs`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        productId,
+                                        canvasData,
+                                        previewImage: dataUrl
+                                    })
+                                });
+                                const responseData = await res.json();
+                                if (responseData.success) {
+                                    alert(`Design saved! Redirecting to Shopify Cart... (Design ID: ${responseData.data.designId})`);
+                                    // In a real app we'd redirect to the Shopify cart URL with the correct _customization_id line item property appended!
+                                } else {
+                                    alert("Failed to save design");
+                                }
+                            } catch (e) {
+                                console.error(e);
+                                alert("Error connecting to API");
+                            }
                         }
                     }}>
-                        <ShoppingCart className="w-4 h-4 mr-2" /> Add to Cart (Save UI)
+                        <ShoppingCart className="w-4 h-4 mr-2" /> Add to Cart (Save DB)
                     </Button>
                     <Button variant="ghost" size="icon" className="text-slate-600 ml-1">
                         <Menu className="w-6 h-6" />
