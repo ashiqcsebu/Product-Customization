@@ -1,6 +1,7 @@
 export * from "./models/store.model.js";
 export * from "./models/user.model.js";
 export * from "./models/store-member.model.js";
+export * from "./models/customer.model.js";
 export * from "./models/product.model.js";
 export * from "./models/product-variant.model.js";
 export * from "./models/asset.model.js";
