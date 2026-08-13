@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { FabricCanvas } from "@/components/canvas/FabricCanvas";
+import { PropertiesPanel } from "@/components/canvas/PropertiesPanel";
 
 // Replace with dynamic environment variable in production
 const getApiUrl = () => {
@@ -14,7 +16,7 @@ const getApiUrl = () => {
 };
 
 export default function CustomizerPage() {
-    const { productId } = useParams();
+    const { productId } = useParams<{ productId: string }>();
 
     // Load product base details
     const { data: product, isLoading: loadingProduct } = useQuery({
@@ -34,9 +36,56 @@ export default function CustomizerPage() {
             if (!res.ok) throw new Error("Failed to fetch customizer config");
             return res.json();
         },
-        // We expect this to fail gracefully if no config exists yet, we should handle that in the UI
         retry: 1
     });
+
+    const handleAddText = () => {
+        const canvas = (window as any).canvas;
+        if (canvas) {
+            const text = new (window as any).fabric.IText('Hello Shabu!', {
+                left: canvas.width / 2 / canvas.getZoom(),
+                top: canvas.height / 2 / canvas.getZoom(),
+                fontFamily: 'arial',
+                fill: '#333',
+                fontSize: 40,
+                originX: 'center',
+                originY: 'center'
+            });
+            canvas.add(text);
+            canvas.setActiveObject(text);
+            canvas.renderAll();
+        }
+    };
+
+    const handleAddImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        const canvas = (window as any).canvas;
+        if (file && canvas) {
+            const reader = new FileReader();
+            reader.onload = (f) => {
+                const data = f.target?.result;
+                (window as any).fabric.Image.fromURL(data as string, (img: any) => {
+                    // Scale down if too large
+                    if (img.width > canvas.width) {
+                        img.scaleToWidth(canvas.width * 0.5);
+                    }
+
+                    // Center it
+                    img.set({
+                        left: canvas.width / 2 / canvas.getZoom(),
+                        top: canvas.height / 2 / canvas.getZoom(),
+                        originX: 'center',
+                        originY: 'center'
+                    });
+
+                    canvas.add(img);
+                    canvas.setActiveObject(img);
+                    canvas.renderAll();
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     if (loadingProduct || loadingConfig) {
         return (
@@ -49,6 +98,9 @@ export default function CustomizerPage() {
     if (!product) {
         return <div className="text-red-500 m-10 text-center">Failed to load product.</div>;
     }
+
+    // Active view defaults to the first view in config
+    const activeView = config?.views?.[0];
 
     return (
         <div className="flex flex-col h-screen overflow-hidden bg-slate-50 relative text-slate-800">
@@ -76,59 +128,63 @@ export default function CustomizerPage() {
             <div className="flex flex-1 overflow-hidden relative">
 
                 {/* 2. LEFT PANEL - TOOLS */}
-                <aside className="w-20 md:w-64 bg-white border-r border-slate-200 flex flex-col pt-4 shrink-0 overflow-y-auto">
+                <aside className="w-20 md:w-64 bg-white border-r border-slate-200 flex flex-col pt-4 shrink-0 overflow-y-auto z-20">
                     <div className="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 hidden md:block">
                         Tools
                     </div>
                     <div className="flex flex-col gap-1 px-2">
-                        <Button variant="ghost" className="justify-start text-sm">Aa Text</Button>
-                        <Button variant="ghost" className="justify-start text-sm">🖼️ Image Upload</Button>
+                        <Button variant="ghost" className="justify-start text-sm" onClick={handleAddText}>Aa Add Text</Button>
+                        <label className="flex">
+                            <input type="file" accept="image/png, image/jpeg" className="hidden" onChange={handleAddImage} />
+                            <Button variant="ghost" className="justify-start text-sm w-full pointer-events-none">🖼️ Image Upload</Button>
+                        </label>
                         <Button variant="ghost" className="justify-start text-sm">📐 Shapes</Button>
-                        <Button variant="ghost" className="justify-start text-sm">🎨 Graphics / Clipart</Button>
+                        <Button variant="ghost" className="justify-start text-sm">🎨 Graphics</Button>
                     </div>
                 </aside>
 
                 {/* 3. CENTER PANEL - CANVASES */}
                 <main className="flex-1 bg-slate-100 relative overflow-hidden flex flex-col">
-                    <div className="flex-1 flex items-center justify-center p-8">
-                        {/* FABRIC JS MOUNTS HERE LATER */}
-                        <div className="w-[80%] max-w-2xl aspect-[3/4] bg-white shadow-xl ring-1 ring-slate-200 relative rounded-sm flex items-center justify-center">
-                            {!config ? (
-                                <div className="text-center text-slate-400 p-8 border border-dashed border-slate-300 rounded-lg">
-                                    <p className="font-semibold text-lg text-slate-600">No Customization Template Found!</p>
-                                    <p className="text-sm">Admin needs to configure Print Areas and Dimensions for this product via the backend API.</p>
-                                    {/* Temporary button to seed dev config */}
-                                    <Button variant="outline" size="sm" className="mt-4" onClick={async () => {
-                                        await fetch(`${getApiUrl()}/config/${productId}`, {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({
-                                                name: "Default T-Shirt Config",
-                                                canvas: { logicalWidth: 1000, logicalHeight: 1200 },
-                                                views: [
-                                                    { key: "front", label: "Front side", printArea: { x: 0.25, y: 0.2, width: 0.5, height: 0.5 }, physicalSize: { width: 12, height: 16, unit: "inch", dpi: 300 } },
-                                                    { key: "back", label: "Back side", printArea: { x: 0.25, y: 0.2, width: 0.5, height: 0.5 }, physicalSize: { width: 12, height: 16, unit: "inch", dpi: 300 } }
-                                                ]
-                                            })
-                                        });
-                                        window.location.reload();
-                                    }}>Seed Default Config for Testing</Button>
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="absolute inset-x-0 top-1/4 bottom-1/4 border-[2px] border-dashed border-blue-400/50 flex items-center justify-center text-blue-500/50 pointer-events-none select-none">
-                                        Print Safe Area ({config.views[0]?.label})
-                                    </div>
-                                </>
-                            )}
-                        </div>
+                    <div className="flex-1 flex items-center justify-center p-8 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-100">
+
+                        {!config ? (
+                            <div className="max-w-md w-full bg-white text-center text-slate-400 p-8 border border-slate-300 rounded-lg shadow-sm">
+                                <p className="font-semibold text-lg text-slate-600">No Customization Template Found!</p>
+                                <p className="text-sm mt-2">Admin needs to configure Print Areas and Dimensions for this product.</p>
+                                <Button variant="outline" size="sm" className="mt-8" onClick={async () => {
+                                    await fetch(`${getApiUrl()}/config/${productId}`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            name: "Default T-Shirt Config",
+                                            canvas: { logicalWidth: 1000, logicalHeight: 1200 },
+                                            views: [
+                                                { key: "front", label: "Front side", printArea: { x: 0.25, y: 0.2, width: 0.5, height: 0.5 }, physicalSize: { width: 12, height: 16, unit: "inch", dpi: 300 } },
+                                                { key: "back", label: "Back side", printArea: { x: 0.25, y: 0.2, width: 0.5, height: 0.5 }, physicalSize: { width: 12, height: 16, unit: "inch", dpi: 300 } }
+                                            ]
+                                        })
+                                    });
+                                    window.location.reload();
+                                }}>Seed Default Config</Button>
+                            </div>
+                        ) : (
+                            <div className="w-full max-w-[800px] aspect-[4/5] relative">
+                                <FabricCanvas
+                                    logicalWidth={config.canvas.logicalWidth}
+                                    logicalHeight={config.canvas.logicalHeight}
+                                    printArea={activeView?.printArea}
+                                />
+                            </div>
+                        )}
                     </div>
 
                     {/* 4. BOTTOM PANEL - VIEWS & PRICING SUB-NAV */}
                     <div className="h-16 bg-white border-t border-slate-200 flex items-center justify-between px-6 shrink-0 relative z-10 shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.05)]">
                         <div className="flex items-center gap-2">
                             {config?.views?.map((view: any) => (
-                                <Button key={view.key} variant="outline" className="rounded-full px-6">{view.label}</Button>
+                                <Button key={view.key} variant={view.key === activeView?.key ? "default" : "outline"} className="rounded-full px-6">
+                                    {view.label}
+                                </Button>
                             ))}
                         </div>
                         <div className="flex items-center gap-4 py-1 px-4 bg-slate-50 rounded-xl border border-slate-200">
@@ -145,9 +201,7 @@ export default function CustomizerPage() {
                     <div className="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
                         Component Properties
                     </div>
-                    <div className="p-4 text-sm text-slate-500 italic text-center mt-10">
-                        Select an object on the canvas to view properties...
-                    </div>
+                    <PropertiesPanel />
                 </aside>
 
             </div>
