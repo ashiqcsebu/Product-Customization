@@ -11,3 +11,6 @@ export * from "./models/design-view.model.js";
 export * from "./models/design-version.model.js";
 export * from "./models/design-version-view.model.js";
 export * from "./models/cart-session.model.js";
+export * from "./models/pricing-rule-set.model.js";
+export * from "./models/order.model.js";
+export * from "./models/order-item.model.js";

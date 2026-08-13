@@ -1,0 +1,10 @@
+feat(database): implement Phase 6 Design Versions and Cart Sessions
+feat(database): implement Phase 5 Design and DesignView models
+feat(database): implement Phase 4 Customizer Config and Asset models
+feat(database): implement Phase 3 Product and ProductVariant models
+feat(database): implement Phase 2 User and StoreMember models
+feat(database): create database workspace and Store model
+ MongoDB connection issue fixed DONE
+chore(api): add .env.example
+feat(api): add production-ready MongoDB connection
+chore: initialize product customizer monorepo
