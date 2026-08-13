@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { FabricCanvas } from "@/components/canvas/FabricCanvas";
 import { PropertiesPanel } from "@/components/canvas/PropertiesPanel";
+import { LeftContextPanel } from "@/components/canvas/LeftContextPanel";
+import { useCustomizerStore } from "@/store/useCustomizerStore";
 import {
     ArrowLeft, Undo2, Redo2, Check, Eye, Share2, ShoppingCart,
     Menu, LayoutTemplate, Type, Image as ImageIcon, Box,
@@ -23,6 +25,9 @@ const getApiUrl = () => {
 
 export default function CustomizerPage() {
     const { productId } = useParams<{ productId: string }>();
+
+    // Connect to global state for tool switching
+    const { activeTool, setActiveTool } = useCustomizerStore();
 
     const { data: product, isLoading: loadingProduct } = useQuery({
         queryKey: ["product", productId],
@@ -42,48 +47,6 @@ export default function CustomizerPage() {
         },
         retry: 1
     });
-
-    const handleAddText = () => {
-        const canvas = (window as any).canvas;
-        if (canvas) {
-            const text = new (window as any).fabric.IText('Your Text', {
-                left: canvas.width / 2 / canvas.getZoom(),
-                top: canvas.height / 2 / canvas.getZoom(),
-                fontFamily: 'Poppins',
-                fill: '#333333',
-                fontSize: 40,
-                originX: 'center',
-                originY: 'center'
-            });
-            canvas.add(text);
-            canvas.setActiveObject(text);
-            canvas.renderAll();
-        }
-    };
-
-    const handleAddImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        const canvas = (window as any).canvas;
-        if (file && canvas) {
-            const reader = new FileReader();
-            reader.onload = (f) => {
-                const data = f.target?.result;
-                (window as any).fabric.Image.fromURL(data as string, (img: any) => {
-                    if (img.width > canvas.width) img.scaleToWidth(canvas.width * 0.5);
-                    img.set({
-                        left: canvas.width / 2 / canvas.getZoom(),
-                        top: canvas.height / 2 / canvas.getZoom(),
-                        originX: 'center',
-                        originY: 'center'
-                    });
-                    canvas.add(img);
-                    canvas.setActiveObject(img);
-                    canvas.renderAll();
-                });
-            };
-            reader.readAsDataURL(file);
-        }
-    };
 
     if (loadingProduct || loadingConfig) {
         return (
@@ -133,100 +96,21 @@ export default function CustomizerPage() {
 
                 {/* A. VERY LEFT PRIMARY TOOLBAR */}
                 <aside className="w-[84px] bg-white border-r border-slate-200 flex flex-col items-center py-4 gap-1 shrink-0 z-20">
-                    <ToolButton icon={<LayoutTemplate />} label="Templates" active />
-                    <ToolButton icon={<Type />} label="Text" />
-                    <ToolButton icon={<ImageIcon />} label="Images" />
-                    <ToolButton icon={<Box />} label="Shapes" />
-                    <ToolButton icon={<Sticker />} label="Clipart" />
-                    <ToolButton icon={<QrCode />} label="QR Code" />
-                    <ToolButton icon={<UploadCloud />} label="Uploads" />
-                    <ToolButton icon={<Layers />} label="Layers" />
-                    <ToolButton icon={<Square />} label="Background" />
-                    <ToolButton icon={<Puzzle />} label="Elements" />
+                    <ToolButton icon={<LayoutTemplate />} label="Templates" active={activeTool === "templates"} onClick={() => setActiveTool("templates")} />
+                    <ToolButton icon={<Type />} label="Text" active={activeTool === "text"} onClick={() => setActiveTool("text")} />
+                    <ToolButton icon={<ImageIcon />} label="Images" active={activeTool === "images"} onClick={() => setActiveTool("images")} />
+                    <ToolButton icon={<Box />} label="Shapes" active={activeTool === "shapes"} onClick={() => setActiveTool("shapes")} />
+                    <ToolButton icon={<Sticker />} label="Clipart" active={activeTool === "clipart"} onClick={() => setActiveTool("clipart")} />
+                    <ToolButton icon={<QrCode />} label="QR Code" active={activeTool === "qrcode"} onClick={() => setActiveTool("qrcode")} />
+                    <ToolButton icon={<UploadCloud />} label="Uploads" active={activeTool === "uploads"} onClick={() => setActiveTool("uploads")} />
+                    <ToolButton icon={<Layers />} label="Layers" active={activeTool === "layers"} onClick={() => setActiveTool("layers")} />
+                    <ToolButton icon={<Square />} label="Background" active={activeTool === "background"} onClick={() => setActiveTool("background")} />
+                    <ToolButton icon={<Puzzle />} label="Elements" active={activeTool === "elements"} onClick={() => setActiveTool("elements")} />
                 </aside>
 
                 {/* B. SECONDARY CONTEXT PANEL */}
-                <aside className="w-[300px] bg-white border-r border-slate-200 flex flex-col shrink-0 z-10 overflow-y-auto">
-                    <div className="p-5 flex flex-col gap-4">
-                        <div className="flex items-center justify-between">
-                            <h2 className="font-semibold text-lg text-slate-900">Text</h2>
-                            <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm px-4 h-9" onClick={handleAddText}>
-                                Add Text
-                            </Button>
-                        </div>
-
-                        <div className="mt-2 space-y-4">
-                            <div>
-                                <label className="text-sm font-semibold text-slate-800 mb-2 block">Font</label>
-                                <select className="w-full border border-slate-200 rounded-md h-10 px-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none">
-                                    <option>Poppins</option>
-                                </select>
-                                <div className="flex gap-2 mt-2">
-                                    <select className="flex-1 border border-slate-200 rounded-md h-10 px-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none">
-                                        <option>Regular</option>
-                                    </select>
-                                    <select className="w-20 border border-slate-200 rounded-md h-10 px-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none">
-                                        <option>24</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-between gap-1 p-1 bg-slate-50 border border-slate-100 rounded-md">
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-indigo-600 bg-indigo-50 font-serif font-bold">B</Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600 font-serif italic">I</Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600 font-serif underline decoration-1 text-lg">U</Button>
-                                <Separator orientation="vertical" className="h-5" />
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600">≡</Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600">≡</Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600">≡</Button>
-                                <Separator orientation="vertical" className="h-5" />
-                                <div className="h-6 w-6 rounded bg-black ml-1 border border-slate-300"></div>
-                            </div>
-
-                            <div>
-                                <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-sm font-semibold text-slate-800">Recently Used</h3>
-                                    <span className="text-xs text-indigo-600 cursor-pointer font-medium hover:underline">See all</span>
-                                </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="border border-slate-200 rounded-lg p-3 text-center cursor-pointer hover:border-indigo-400">
-                                        <div className="text-lg font-serif">John Smith</div>
-                                        <div className="text-[10px] text-slate-500 uppercase mt-1">Managing Director</div>
-                                    </div>
-                                    <div className="border border-slate-200 rounded-lg p-3 text-center cursor-pointer hover:border-indigo-400 flex flex-col justify-center items-center font-bold text-indigo-900 leading-tight">
-                                        BRAND<span className="text-[8px] font-normal tracking-widest text-slate-500 uppercase mt-1 block">Tagline Here</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <div className="flex items-center justify-between mb-3 mt-2">
-                                    <h3 className="text-sm font-semibold text-slate-800">Font Family</h3>
-                                    <span className="text-xs text-indigo-600 cursor-pointer font-medium hover:underline">See all</span>
-                                </div>
-                                <input type="text" placeholder="Search fonts..." className="w-full border border-slate-200 rounded-md h-10 px-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none mb-3 bg-slate-50" />
-
-                                <div className="flex flex-col gap-1 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
-                                    <div className="flex items-center justify-between px-3 py-2 bg-indigo-50 rounded-md text-indigo-700 cursor-pointer">
-                                        <span className="font-sans">Poppins</span>
-                                        <Check className="w-4 h-4" />
-                                    </div>
-                                    <div className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 rounded-md text-slate-700 cursor-pointer">
-                                        <span className="font-sans">Montserrat</span>
-                                    </div>
-                                    <div className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 rounded-md text-slate-700 cursor-pointer">
-                                        <span className="font-sans">Open Sans</span>
-                                    </div>
-                                    <div className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 rounded-md text-slate-700 cursor-pointer">
-                                        <span className="font-serif">Playfair Display</span>
-                                    </div>
-                                    <div className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 rounded-md text-slate-700 cursor-pointer">
-                                        <span className="font-sans">Raleway</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <aside className="w-[300px] bg-white border-r border-slate-200 flex flex-col shrink-0 z-10 overflow-y-auto custom-scrollbar">
+                    <LeftContextPanel />
                 </aside>
 
                 {/* C. CENTER CANVAS EXPEREINCE */}
@@ -368,12 +252,15 @@ export default function CustomizerPage() {
 }
 
 // Helper component for the very left toolbar
-function ToolButton({ icon, label, active }: { icon: React.ReactNode; label: string; active?: boolean }) {
+function ToolButton({ icon, label, active, onClick }: { icon: React.ReactNode; label: string; active?: boolean, onClick?: () => void }) {
     return (
-        <button className={`w-[72px] h-[72px] flex flex-col items-center justify-center gap-1.5 rounded-xl transition-all ${active
-            ? "bg-indigo-50 text-indigo-700"
-            : "bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-            }`}>
+        <button
+            onClick={onClick}
+            className={`w-[72px] h-[72px] flex flex-col items-center justify-center gap-1.5 rounded-xl transition-all ${active
+                    ? "bg-indigo-50 text-indigo-700"
+                    : "bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                }`}
+        >
             <div className={`[&>svg]:w-[22px] [&>svg]:h-[22px] [&>svg]:stroke-[1.5px] ${active ? "text-indigo-600" : ""}`}>
                 {icon}
             </div>
