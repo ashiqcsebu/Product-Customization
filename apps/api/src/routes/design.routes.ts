@@ -72,11 +72,17 @@ router.post("/", async (req, res) => {
         design.latestVersionId = version._id;
         await design.save();
 
+        // Extract numeric ID from gid://shopify/ProductVariant/12345
+        let numericVariantId = "1234567890"; // default mock
+        const storeDomain = "your-store.myshopify.com"; // normally from Store config
+
         res.status(201).json({
             success: true,
             data: {
-                designId: design._id,
-                versionId: version._id,
+                designId: design._id.toString(),
+                versionId: version._id.toString(),
+                shopifyVariantId: numericVariantId,
+                storeDomain: storeDomain,
                 message: "Design saved successfully for cart."
             }
         });

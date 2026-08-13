@@ -112,14 +112,36 @@ export default function CustomizerPage() {
                                 });
                                 const responseData = await res.json();
                                 if (responseData.success) {
-                                    alert(`Design saved! Redirecting to Shopify Cart... (Design ID: ${responseData.data.designId})`);
-                                    // In a real app we'd redirect to the Shopify cart URL with the correct _customization_id line item property appended!
+                                    const { designId, shopifyVariantId, storeDomain } = responseData.data;
+                                    alert(`Design saved! Redirecting to Shopify Store Cart...`);
+
+                                    // Construct dynamic POST form to Shopify Cart Endpoint
+                                    const form = document.createElement('form');
+                                    form.method = 'POST';
+                                    form.action = `https://${storeDomain}/cart/add`;
+
+                                    const addInput = (name: string, value: string) => {
+                                        const input = document.createElement('input');
+                                        input.type = 'hidden';
+                                        input.name = name;
+                                        input.value = value;
+                                        form.appendChild(input);
+                                    };
+
+                                    addInput('id', shopifyVariantId);
+                                    addInput('quantity', '1');
+                                    addInput('properties[_Design_ID]', designId); // _ starts an invisible property in shopify UI
+                                    addInput('return_to', '/cart');
+
+                                    document.body.appendChild(form);
+                                    form.submit();
+
                                 } else {
                                     alert("Failed to save design");
                                 }
                             } catch (e) {
                                 console.error(e);
-                                alert("Error connecting to API");
+                                alert("Error connecting to Customizer backend");
                             }
                         }
                     }}>
