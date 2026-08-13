@@ -10,10 +10,5 @@
   },
   "devDependencies": {
     "concurrently": "^10.0.4"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "canvas"
-    ]
   }
 }
