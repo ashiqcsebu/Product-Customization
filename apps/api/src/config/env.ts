@@ -30,6 +30,20 @@ const envSchema = z.object({
   MONGODB_APP_NAME: z
     .string()
     .default("product-customizer"),
+
+  SHOPIFY_STORE_DOMAIN: z
+    .string()
+    .min(1, "SHOPIFY_STORE_DOMAIN is required (e.g. your-store.myshopify.com)")
+    .default("demo-store.myshopify.com"),
+
+  SHOPIFY_ADMIN_ACCESS_TOKEN: z
+    .string()
+    .min(1, "SHOPIFY_ADMIN_ACCESS_TOKEN is required")
+    .default("shpat_mock_token_123"),
+
+  SHOPIFY_API_VERSION: z
+    .string()
+    .default("2024-01"),
 });
 
 const result = envSchema.safeParse(process.env);
