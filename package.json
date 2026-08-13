@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev:web": "pnpm --filter web dev",
+    "dev": "concurrently \"pnpm dev:web\" \"pnpm dev:api\"",
+    "dev:web": "pnpm --filter web dev --hostname 0.0.0.0",
     "dev:api": "pnpm --filter api dev"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.4"
   }
 }

@@ -3,6 +3,7 @@ import express from "express";
 import helmet from "helmet";
 import mongoose from "mongoose";
 import { productRoutes } from "./routes/product.routes.js";
+import { configRoutes } from "./routes/config.routes.js";
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/v1/products", productRoutes);
+app.use("/api/v1/config", configRoutes);
 
 // Root path confirmation
 app.get("/", (_req, res) => {

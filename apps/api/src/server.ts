@@ -15,9 +15,9 @@ const startServer = async (): Promise<void> => {
     try {
         await connectDatabase();
 
-        server = app.listen(env.PORT, () => {
+        server = app.listen(env.PORT, "0.0.0.0", () => {
             console.log(
-                `[server] API running on http://localhost:${env.PORT}`
+                `[server] API running on http://0.0.0.0:${env.PORT}`
             );
         });
     } catch (error) {
