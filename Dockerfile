@@ -1,8 +1,8 @@
 # Build stage
 FROM node:20-alpine AS builder
 
-# Enable corepack for pnpm
-RUN corepack enable
+# Install pnpm instead of using corepack
+RUN npm install -g pnpm@9
 
 # Set working directory
 WORKDIR /app
@@ -23,8 +23,8 @@ RUN pnpm --filter api build
 
 # Production stage
 FROM node:20-alpine AS runner
-# Enable corepack for pnpm
-RUN corepack enable
+# Install pnpm
+RUN npm install -g pnpm@9
 
 WORKDIR /app
 ENV NODE_ENV=production
