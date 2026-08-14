@@ -11,10 +11,15 @@ const router = Router();
 router.post("/sync", async (req: Request, res: Response) => {
     try {
         // For now we grab the first store. Later we'll grab from auth token context.
-        const store = await Store.findOne();
+        let store = await Store.findOne();
         if (!store) {
-            res.status(404).json({ error: "Store not found. Please create a store first." });
-            return;
+            const { env } = await import("../config/env.js");
+            store = await Store.create({
+                name: "Main Store",
+                shopDomain: env.SHOPIFY_STORE_DOMAIN || "localhost",
+                currency: "USD",
+                status: "active"
+            });
         }
 
         const result = await ProductSyncService.syncAllProducts(store._id);
