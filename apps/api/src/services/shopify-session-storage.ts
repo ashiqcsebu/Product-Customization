@@ -1,4 +1,4 @@
-import { SessionStorage } from "@shopify/shopify-app-express";
+import { SessionStorage } from "@shopify/shopify-app-session-storage";
 import { Session } from "@shopify/shopify-api";
 import { ShopifySession } from "@shabu/database";
 
@@ -70,7 +70,7 @@ export class MongooseSessionStorage implements SessionStorage {
     public async findSessionsByShop(shop: string): Promise<Session[]> {
         try {
             const docs = await ShopifySession.find({ shop }).lean();
-            return docs.map((doc) => {
+            return docs.map((doc: any) => {
                 return new Session({
                     id: doc.id,
                     shop: doc.shop,

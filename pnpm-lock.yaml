@@ -23,6 +23,9 @@ importers:
       '@shopify/shopify-app-express':
         specifier: ^8.0.0
         version: 8.0.0(express@5.2.1(supports-color@10.2.2))
+      '@shopify/shopify-app-session-storage':
+        specifier: ^6.0.0
+        version: 6.0.0(@shopify/shopify-api@14.0.0)
       cors:
         specifier: ^2.8.6
         version: 2.8.6

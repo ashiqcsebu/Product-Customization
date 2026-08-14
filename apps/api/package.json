@@ -13,6 +13,7 @@
     "@shabu/database": "workspace:*",
     "@shopify/shopify-api": "^14.0.0",
     "@shopify/shopify-app-express": "^8.0.0",
+    "@shopify/shopify-app-session-storage": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
