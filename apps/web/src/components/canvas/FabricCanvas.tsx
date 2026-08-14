@@ -80,12 +80,79 @@ export function FabricCanvas({ logicalWidth, logicalHeight, printArea }: FabricC
             }
         });
 
+        // Keyboard shortcuts
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                // Prevent deleting if typing in an input
+                if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+                const activeObj = canvas.getActiveObject();
+                if (activeObj && !(activeObj as any).isEditing) {
+                    canvas.remove(activeObj);
+                    canvas.discardActiveObject();
+                    canvas.requestRenderAll();
+                }
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+
         return () => {
             ro.disconnect();
+            window.removeEventListener('keydown', handleKeyDown);
             canvas.dispose();
             setCanvas(null);
         };
-    }, [logicalWidth, logicalHeight]);
+    }, [logicalWidth, logicalHeight]); // We don't depend on printArea to avoid reinitializing on every prop change. We'll handle printArea separately.
+
+    // Apply clip path and bounds warning when instance or printArea changes
+    useEffect(() => {
+        if (!fabricInstance || !printArea) return;
+
+        // Apply visual clipping path to the canvas, matching the print area precisely
+        const clipRect = new fabric.Rect({
+            originX: 'left',
+            originY: 'top',
+            left: logicalWidth * printArea.x,
+            top: logicalHeight * printArea.y,
+            width: logicalWidth * printArea.width,
+            height: logicalHeight * printArea.height,
+            absolutePositioned: true
+        });
+
+        // The warning system
+        const checkBounds = (e: fabric.IEvent) => {
+            const obj = e.target;
+            if (!obj) return;
+            const objBounds = obj.getBoundingRect(true, true);
+            const printBounds = {
+                left: clipRect.left! * fabricInstance.getZoom(),
+                top: clipRect.top! * fabricInstance.getZoom(),
+                right: (clipRect.left! + clipRect.width!) * fabricInstance.getZoom(),
+                bottom: (clipRect.top! + clipRect.height!) * fabricInstance.getZoom()
+            };
+
+            const isOut = (
+                objBounds.left > printBounds.right ||
+                objBounds.left + objBounds.width < printBounds.left ||
+                objBounds.top > printBounds.bottom ||
+                objBounds.top + objBounds.height < printBounds.top
+            );
+
+            if (isOut) {
+                // You could trigger a toast here
+                obj.opacity = 0.5; // Visual hint that it's out of bounds
+            } else {
+                obj.opacity = 1;
+            }
+        };
+
+        fabricInstance.on('object:moving', checkBounds);
+        fabricInstance.on('object:modified', checkBounds);
+
+        return () => {
+            fabricInstance.off('object:moving', checkBounds);
+            fabricInstance.off('object:modified', checkBounds);
+        };
+    }, [fabricInstance, printArea, logicalWidth, logicalHeight]);
 
     // Expose methods to global window for testing or easy hook access later
     // In a real app we'd use Zustand or a React Context

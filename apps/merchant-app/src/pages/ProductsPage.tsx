@@ -101,21 +101,39 @@ function ProductConfigurator({ productId }: { productId: string }) {
     useEffect(() => {
         setLoading(true);
         fetch(`${API_URL}/config/${productId}`)
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok && res.status !== 404) throw new Error("Failed to load");
+                return res.json();
+            })
             .then(data => {
-                if (data.success && data.data) {
-                    setConfig(data.data);
+                if (data && data.canvas) {
+                    setConfig({
+                        name: data.name || "Default Template",
+                        canvasWidth: data.canvas.logicalWidth,
+                        canvasHeight: data.canvas.logicalHeight,
+                        views: data.views.map((v: any) => ({
+                            ...v,
+                            // convert 0-1 to actual pixels for the visual editor
+                            printArea: {
+                                x: v.printArea.x * data.canvas.logicalWidth,
+                                y: v.printArea.y * data.canvas.logicalHeight,
+                                width: v.printArea.width * data.canvas.logicalWidth,
+                                height: v.printArea.height * data.canvas.logicalHeight
+                            }
+                        }))
+                    });
                 } else {
                     // Not configured yet, set defaults
                     setConfig({
+                        name: "Default Template",
                         canvasWidth: 800,
                         canvasHeight: 800,
                         views: [{
                             key: 'front',
-                            name: 'Front',
+                            label: 'Front',
                             overlayImage: '',
                             printArea: { x: 200, y: 200, width: 400, height: 400 },
-                            bleedArea: { x: 190, y: 190, width: 420, height: 420 }
+                            physicalSize: { width: 3.5, height: 2, unit: "inch", dpi: 300 }
                         }]
                     });
                 }
@@ -125,14 +143,34 @@ function ProductConfigurator({ productId }: { productId: string }) {
 
     const handleSave = async () => {
         try {
+            // Convert pixels back to 0-1 format for backend
+            const payload = {
+                name: config.name,
+                canvas: {
+                    logicalWidth: config.canvasWidth,
+                    logicalHeight: config.canvasHeight
+                },
+                views: config.views.map((v: any) => ({
+                    ...v,
+                    printArea: {
+                        x: v.printArea.x / config.canvasWidth,
+                        y: v.printArea.y / config.canvasHeight,
+                        width: v.printArea.width / config.canvasWidth,
+                        height: v.printArea.height / config.canvasHeight
+                    }
+                }))
+            };
+
             const res = await fetch(`${API_URL}/config/${productId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(config)
+                body: JSON.stringify(payload)
             });
             const data = await res.json();
-            if (data.success) {
-                alert('Configuration Saved!');
+            if (res.ok) {
+                alert('Configuration Saved Successfully!');
+            } else {
+                alert(data.error || 'Failed to save configuration');
             }
         } catch (err) {
             alert('Failed to save config.');
