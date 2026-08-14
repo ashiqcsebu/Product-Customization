@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Check } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { fabric } from "fabric";
 
 export function LeftContextPanel() {
     const { activeTool, canvasRef, activeObjectId } = useCustomizerStore();
@@ -36,7 +37,7 @@ export function LeftContextPanel() {
 
     const handleAddText = () => {
         if (!canvasRef) return;
-        const text = new (window as any).fabric.IText('New Text', {
+        const text = new fabric.IText('New Text', {
             left: canvasRef.width / 2 / canvasRef.getZoom(),
             top: canvasRef.height / 2 / canvasRef.getZoom(),
             fontFamily: 'Poppins',
@@ -44,7 +45,7 @@ export function LeftContextPanel() {
             fontSize: 40,
             originX: 'center',
             originY: 'center',
-            shadow: new (window as any).fabric.Shadow({
+            shadow: new fabric.Shadow({
                 color: "rgba(0,0,0,0)",
                 blur: 0,
                 offsetX: 0,
@@ -62,7 +63,7 @@ export function LeftContextPanel() {
             const reader = new FileReader();
             reader.onload = (f) => {
                 const data = f.target?.result;
-                (window as any).fabric.Image.fromURL(data as string, (img: any) => {
+                fabric.Image.fromURL(data as string, (img: any) => {
                     if (img.width > canvasRef.width) img.scaleToWidth(canvasRef.width * 0.5);
                     img.set({
                         left: canvasRef.width / 2 / canvasRef.getZoom(),
@@ -116,11 +117,11 @@ export function LeftContextPanel() {
         };
 
         if (type === 'rect') {
-            shape = new (window as any).fabric.Rect({ ...commonProps, width: 150, height: 150 });
+            shape = new fabric.Rect({ ...commonProps, width: 150, height: 150 });
         } else if (type === 'circle') {
-            shape = new (window as any).fabric.Circle({ ...commonProps, radius: 75 });
+            shape = new fabric.Circle({ ...commonProps, radius: 75 });
         } else if (type === 'triangle') {
-            shape = new (window as any).fabric.Triangle({ ...commonProps, width: 150, height: 150 });
+            shape = new fabric.Triangle({ ...commonProps, width: 150, height: 150 });
         }
 
         if (shape) {
