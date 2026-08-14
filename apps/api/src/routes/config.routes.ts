@@ -42,18 +42,18 @@ router.post("/:productId", async (req: Request, res: Response) => {
                 $set: {
                     ...body,
                     productId,
-                    storeId: store._id,
-                    // Increment version on update automatically
-                    $inc: { version: 1 }
-                }
+                    storeId: store._id
+                },
+                // Increment version on update automatically
+                $inc: { version: 1 }
             },
             { new: true, upsert: true }
         );
 
         res.json({ message: "Config saved successfully", config: updatedConfig });
-    } catch (error) {
+    } catch (error: any) {
         console.error("[ConfigApi]", error);
-        res.status(500).json({ error: "Failed to save customizer config" });
+        res.status(500).json({ error: "Failed to save customizer config", details: error?.message || error });
     }
 });
 
