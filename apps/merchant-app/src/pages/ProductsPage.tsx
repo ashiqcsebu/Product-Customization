@@ -28,9 +28,24 @@ export function ProductsPage() {
         <div className="flex h-full">
             {/* Sidebar for Product List */}
             <div className="w-1/3 max-w-sm border-r border-slate-200 bg-white p-6 overflow-y-auto">
-                <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                    <Package className="w-5 h-5 text-indigo-600" /> Products
-                </h2>
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <Package className="w-5 h-5 text-indigo-600" /> Products
+                    </h2>
+                    <button
+                        onClick={() => {
+                            const btn = document.getElementById('sync-btn');
+                            if (btn) btn.innerText = 'Syncing...';
+                            fetch(`${API_URL}/products/sync`, { method: 'POST' })
+                                .then(() => window.location.reload())
+                                .catch(() => alert('Failed to sync products'));
+                        }}
+                        id="sync-btn"
+                        className="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-md text-sm font-semibold transition-colors"
+                    >
+                        Sync Shopify
+                    </button>
+                </div>
                 <div className="space-y-3">
                     {products.length === 0 ? (
                         <p className="text-sm text-slate-500">No products found. Start seed script or check DB.</p>
