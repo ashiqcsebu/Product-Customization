@@ -4,6 +4,7 @@ import { useCustomizerStore } from "@/store/useCustomizerStore";
 import { Button } from "@/components/ui/button";
 import { Copy, Trash2, AlignLeft, AlignCenter, AlignRight, AlignJustify, ArrowUpToLine, ArrowDownToLine, ArrowUp, ArrowDown } from "lucide-react";
 import { useEffect, useState } from "react";
+import { fabric } from "fabric";
 
 export function PropertiesPanel() {
     const { activeObjectId, activeObjectType, canvasRef } = useCustomizerStore();
@@ -194,8 +195,33 @@ export function PropertiesPanel() {
                         <div>
                             <label className="text-xs font-semibold text-slate-700 mb-2 block">Text Effects</label>
                             <div className="grid grid-cols-3 gap-2">
-                                <Button variant="outline" size="sm" className="h-8 text-[11px] px-1 font-medium bg-white text-slate-700">Shadow</Button>
-                                <Button variant="outline" size="sm" className="h-8 text-[11px] px-1 font-medium bg-white text-slate-700">Outline</Button>
+                                <Button
+                                    variant={props.shadow ? "default" : "outline"}
+                                    size="sm"
+                                    className={`h-8 text-[11px] px-1 font-medium ${props.shadow ? 'bg-indigo-600 text-white' : 'bg-white text-slate-700'}`}
+                                    onClick={() => {
+                                        updateObject('shadow', props.shadow ? null : new fabric.Shadow({
+                                            color: 'rgba(0,0,0,0.5)',
+                                            blur: 5,
+                                            offsetX: 2,
+                                            offsetY: 2
+                                        }));
+                                    }}
+                                >Shadow</Button>
+                                <Button
+                                    variant={props.stroke ? "default" : "outline"}
+                                    size="sm"
+                                    className={`h-8 text-[11px] px-1 font-medium ${props.stroke ? 'bg-indigo-600 text-white' : 'bg-white text-slate-700'}`}
+                                    onClick={() => {
+                                        if (props.stroke) {
+                                            updateObject('stroke', null);
+                                            updateObject('strokeWidth', 0);
+                                        } else {
+                                            updateObject('stroke', '#000000');
+                                            updateObject('strokeWidth', 1);
+                                        }
+                                    }}
+                                >Outline</Button>
                                 <Button variant="outline" size="sm" className="h-8 text-[11px] px-1 font-medium bg-white text-slate-700">Curved</Button>
                             </div>
                         </div>

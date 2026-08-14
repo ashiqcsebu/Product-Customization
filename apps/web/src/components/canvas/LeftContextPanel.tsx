@@ -37,9 +37,10 @@ export function LeftContextPanel() {
 
     const handleAddText = () => {
         if (!canvasRef) return;
+        const center = canvasRef.getCenter();
         const text = new fabric.IText('New Text', {
-            left: canvasRef.width / 2 / canvasRef.getZoom(),
-            top: canvasRef.height / 2 / canvasRef.getZoom(),
+            left: center.left / canvasRef.getZoom(),
+            top: center.top / canvasRef.getZoom(),
             fontFamily: 'Poppins',
             fill: '#1e293b',
             fontSize: 40,
@@ -64,10 +65,11 @@ export function LeftContextPanel() {
             reader.onload = (f) => {
                 const data = f.target?.result;
                 fabric.Image.fromURL(data as string, (img: any) => {
+                    const center = canvasRef.getCenter();
                     if (img.width > canvasRef.width) img.scaleToWidth(canvasRef.width * 0.5);
                     img.set({
-                        left: canvasRef.width / 2 / canvasRef.getZoom(),
-                        top: canvasRef.height / 2 / canvasRef.getZoom(),
+                        left: center.left / canvasRef.getZoom(),
+                        top: center.top / canvasRef.getZoom(),
                         originX: 'center',
                         originY: 'center'
                     });
