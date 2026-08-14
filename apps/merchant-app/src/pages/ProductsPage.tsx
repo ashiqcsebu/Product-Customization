@@ -17,7 +17,12 @@ export function ProductsPage() {
         fetch(`${API_URL}/products`)
             .then(res => res.json())
             .then(data => {
-                if (data.success) {
+                // If it's an array directly
+                if (Array.isArray(data)) {
+                    setProducts(data);
+                }
+                // If it's wrapped in a data object
+                else if (data && data.success) {
                     setProducts(data.data.products || data.data);
                 }
             })
