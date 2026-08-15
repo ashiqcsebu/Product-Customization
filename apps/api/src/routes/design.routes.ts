@@ -7,7 +7,7 @@ const router = Router();
 // Create or save a design
 router.post("/", async (req, res) => {
     try {
-        const { productId, variantId, canvasData, previewImage } = req.body;
+        const { productId, variantId, canvasData, previewImage, quantity, finalCalculatedPrice } = req.body;
 
         // Hardcode or lookup basics for the vertical slice
         const product = await Product.findById(productId).populate('storeId').exec();
@@ -20,6 +20,9 @@ router.post("/", async (req, res) => {
             return res.status(404).json({ message: "Config not found" });
         }
 
+        const actualPrice = finalCalculatedPrice || 19.99;
+        const actualQuantity = quantity || 1;
+
         // Create a dummy design document to represent the user's session work
         const design = new Design({
             storeId: product.storeId,
@@ -30,10 +33,10 @@ router.post("/", async (req, res) => {
             status: "cart_locked",
             activeViewKey: "front",
             pricing: {
-                productPrice: 19.99,
-                customizationPrice: 5.00,
+                productPrice: actualPrice,
+                customizationPrice: 0,
                 discount: 0,
-                total: 24.99,
+                total: actualPrice * actualQuantity,
                 currency: "USD"
             }
         });
@@ -75,10 +78,10 @@ router.post("/", async (req, res) => {
             },
             previewAssetIds: [asset._id],
             pricingSnapshot: {
-                basePrice: 19.99,
-                charges: [{ key: "customization", label: "Custom Print", quantity: 1, unitPrice: 5.00, total: 5.00 }],
+                basePrice: actualPrice,
+                charges: [],
                 discount: 0,
-                total: 24.99,
+                total: actualPrice * actualQuantity,
                 currency: "USD"
             }
         });

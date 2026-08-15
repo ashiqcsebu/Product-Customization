@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,34 @@ export default function CustomizerPage() {
         },
         retry: 1
     });
+
+    const [qty, setQty] = useState(1);
+
+    const { data: pricingData } = useQuery({
+        queryKey: ["pricing", productId, qty, config],
+        queryFn: async () => {
+            const res = await fetch(`${getApiUrl()}/pricing/calculate`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    productId,
+                    variables: {
+                        width: 6,
+                        height: 4,
+                        area: 24,
+                        quantity: qty
+                    }
+                })
+            });
+            if (!res.ok) throw new Error("Failed to calculate price");
+            return res.json();
+        },
+        enabled: !!config
+    });
+
+    const finalPrice = pricingData?.success 
+        ? pricingData.data.finalPrice 
+        : (product?.variants?.[0]?.price || 0);
 
     if (loadingProduct || loadingConfig) {
         return (
