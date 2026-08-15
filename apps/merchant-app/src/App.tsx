@@ -1,10 +1,11 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, Settings, ShoppingBag, Calculator } from 'lucide-react';
+import { LayoutDashboard, Package, Settings, ShoppingBag, Calculator, Box } from 'lucide-react';
 import { ProductsPage } from './pages/ProductsPage';
 import { OrdersPage } from './pages/OrdersPage';
 import { PricingRulesPage } from './pages/PricingRulesPage';
 import { PricingRuleBuilder } from './pages/PricingRuleBuilder';
+import { ProductOptionsBuilder } from './pages/ProductOptionsBuilder';
 
 // Placeholders for actual pages
 const Dashboard = () => <div className="p-8"><h1>Dashboard</h1><p>Welcome to the customizer admin.</p></div>;
@@ -27,6 +28,9 @@ function AppLayout({ children }: { children: React.ReactNode }) {
           <Link to="/" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors ${isActive('/') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 hover:text-white'}`}>
             <LayoutDashboard className="w-4 h-4" /> Dashboard
           </Link>
+          <Link to="/options" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors ${isActive('/options') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 hover:text-white'}`}>
+            <Box className="w-4 h-4" /> Product Options
+          </Link>
           <Link to="/pricing" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors ${isActive('/pricing') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 hover:text-white'}`}>
             <Calculator className="w-4 h-4" /> Pricing Rules
           </Link>
@@ -43,7 +47,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
           </Link>
         </div>
       </aside>
-      <main className="flex-1 overflow-auto bg-slate-50">
+      <main className="flex-1 overflow-auto bg-slate-50 flex flex-col">
         {children}
       </main>
     </div>
@@ -57,9 +61,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/products" element={<ProductsPage />} />
-          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/options" element={<ProductOptionsBuilder />} />
           <Route path="/pricing" element={<PricingRulesPage />} />
           <Route path="/pricing/new" element={<PricingRuleBuilder />} />
+          <Route path="/orders" element={<OrdersPage />} />
         </Routes>
       </AppLayout>
     </BrowserRouter>
