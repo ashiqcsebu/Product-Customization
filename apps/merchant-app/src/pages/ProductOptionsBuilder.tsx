@@ -1,282 +1,403 @@
 import { useState } from "react";
-import { Plus, Trash2, Save, Settings2, X, PlusCircle, ChevronDown, Box } from "lucide-react";
+import { ArrowLeft, GripVertical, Settings2, Trash2, Plus, ChevronDown } from "lucide-react";
 
-type Choice = { id: string; label: string; priceModifier: number; isPercentage: boolean };
-type OptionType = "dropdown" | "radio" | "checkbox" | "swatch" | "text" | "file";
-
+type Choice = { id: string; label: string; priceModifier: number };
 type ProductOption = {
     id: string;
-    type: OptionType;
+    type: "Color Swatch" | "Dropdown" | "Button" | "Radio" | "File Upload";
     name: string;
     label: string;
     required: boolean;
+    showLabel: boolean;
+    helpText: string;
+    layout: "Vertical" | "Horizontal" | "Swatch Grid" | "Pill";
     choices: Choice[];
 };
 
 export function ProductOptionsBuilder() {
-    const [selectedProduct, setSelectedProduct] = useState("prod_1");
+    const [activeTab, setActiveTab] = useState("Options");
 
+    // Core functional state matching the image structure exactly
     const [options, setOptions] = useState<ProductOption[]>([
         {
-            id: "opt_1",
-            type: "dropdown",
-            name: "Material",
-            label: "Select Material",
+            id: "opt_color",
+            name: "Color",
+            label: "Color",
+            type: "Color Swatch",
             required: true,
+            showLabel: true,
+            helpText: "Choose your preferred color",
+            layout: "Vertical",
             choices: [
-                { id: "c1", label: "Standard Cotton", priceModifier: 0, isPercentage: false },
-                { id: "c2", label: "Premium Silk", priceModifier: 15, isPercentage: false },
+                { id: "c_black", label: "Black", priceModifier: 0 },
+                { id: "c_white", label: "White", priceModifier: 0 },
+                { id: "c_blue", label: "Blue", priceModifier: 2 },
+                { id: "c_red", label: "Red", priceModifier: 0 },
+                { id: "c_gray", label: "Gray", priceModifier: 0 },
+            ]
+        },
+        {
+            id: "opt_size",
+            name: "Size",
+            label: "Size",
+            type: "Dropdown",
+            required: true,
+            showLabel: true,
+            helpText: "",
+            layout: "Vertical",
+            choices: [
+                { id: "s_s", label: "S", priceModifier: 0 },
+                { id: "s_m", label: "M", priceModifier: 0 },
+                { id: "s_l", label: "L", priceModifier: 4 },
+            ]
+        },
+        {
+            id: "opt_loc",
+            name: "Print Location",
+            label: "Print Location",
+            type: "Button",
+            required: false,
+            showLabel: true,
+            helpText: "",
+            layout: "Horizontal",
+            choices: [
+                { id: "l_front", label: "Front", priceModifier: 0 },
+                { id: "l_back", label: "Back", priceModifier: 5 },
+                { id: "l_chest", label: "Left Chest", priceModifier: -2 },
             ]
         }
     ]);
 
+    const [selectedOptionId, setSelectedOptionId] = useState<string>("opt_color");
+    const activeOption = options.find(o => o.id === selectedOptionId);
+
+    // Live preview mock states
+    const [previewSelections, setPreviewSelections] = useState<Record<string, string>>({
+        opt_color: "c_black",
+        opt_size: "s_m",
+        opt_loc: "l_front",
+    });
+
     const addOption = () => {
         if (options.length >= 10) {
-            alert("Maximum 10 options allowed per product.");
+            alert("Maximum 10 options reached.");
             return;
         }
-        setOptions([
-            ...options,
-            {
-                id: Date.now().toString(),
-                type: "dropdown",
-                name: "New Option",
-                label: "Select Option",
-                required: false,
-                choices: []
-            }
-        ]);
+        const newId = "opt_" + Date.now();
+        setOptions([...options, {
+            id: newId,
+            name: "New Option",
+            label: "New Option Label",
+            type: "Dropdown",
+            required: false,
+            showLabel: true,
+            helpText: "",
+            layout: "Horizontal",
+            choices: []
+        }]);
+        setSelectedOptionId(newId);
+    };
+
+    const updateActiveOption = (updates: Partial<ProductOption>) => {
+        if (!activeOption) return;
+        setOptions(options.map(o => o.id === activeOption.id ? { ...o, ...updates } : o));
     };
 
     const removeOption = (id: string) => {
-        setOptions(options.filter(o => o.id !== id));
+        const newOptions = options.filter(o => o.id !== id);
+        setOptions(newOptions);
+        if (selectedOptionId === id) setSelectedOptionId(newOptions[0]?.id || "");
     };
 
-    const updateOption = (id: string, updates: Partial<ProductOption>) => {
-        setOptions(options.map(o => o.id === id ? { ...o, ...updates } : o));
-    };
+    // Derived calculated price
+    const basePrice = 22.00;
+    let extraPrice = 0;
+    options.forEach(opt => {
+        const selectedValue = previewSelections[opt.id];
+        const choice = opt.choices.find(c => c.id === selectedValue);
+        if (choice) {
+            extraPrice += choice.priceModifier;
+        }
+    });
 
-    const addChoice = (optionId: string) => {
-        setOptions(options.map(o => {
-            if (o.id === optionId) {
-                return {
-                    ...o,
-                    choices: [...o.choices, { id: Date.now().toString(), label: "New Choice", priceModifier: 0, isPercentage: false }]
-                };
-            }
-            return o;
-        }));
-    };
-
-    const removeChoice = (optionId: string, choiceId: string) => {
-        setOptions(options.map(o => {
-            if (o.id === optionId) {
-                return { ...o, choices: o.choices.filter(c => c.id !== choiceId) };
-            }
-            return o;
-        }));
-    };
-
-    const updateChoice = (optionId: string, choiceId: string, updates: Partial<Choice>) => {
-        setOptions(options.map(o => {
-            if (o.id === optionId) {
-                return {
-                    ...o,
-                    choices: o.choices.map(c => c.id === choiceId ? { ...c, ...updates } : c)
-                };
-            }
-            return o;
-        }));
+    const badgeColors: Record<string, string> = {
+        "Color Swatch": "bg-blue-500",
+        "Dropdown": "bg-amber-500",
+        "Button": "bg-cyan-500",
+        "Radio": "bg-red-500",
+        "File Upload": "bg-emerald-500"
     };
 
     const handleSave = () => {
-        console.log("Saving Options:", options);
-        alert("Product Options & Add-On Rules Saved Successfully!");
+        alert("Settings Saved successfully! Sending full JSON to Shopify.");
+        console.log("Config:", options);
     };
 
     return (
-        <div className="flex h-screen bg-[#F8F9FA] text-slate-800 font-sans overflow-hidden">
-            <div className="flex-1 flex flex-col max-w-6xl mx-auto w-full p-8 overflow-y-auto">
-                <div className="flex items-center justify-between mb-8">
-                    <div>
-                        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Product Add-On Options</h1>
-                        <p className="text-sm text-slate-500 mt-1">Configure limitless options and variant pricing rules for products.</p>
-                    </div>
-                    <button
-                        onClick={handleSave}
-                        className="bg-slate-900 hover:bg-black text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition text-sm flex items-center gap-2"
-                    >
-                        <Save className="w-4 h-4" /> Save Options
+        <div className="flex-1 overflow-auto bg-[#F8FAFC] text-slate-800 font-sans p-8 max-w-[1400px] w-full">
+
+            {/* Header */}
+            <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-4">
+                    <button className="text-slate-500 hover:text-slate-800 transition">
+                        <ArrowLeft className="w-5 h-5" />
+                    </button>
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
+                        Polo Shirt
+                        <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-md">Active</span>
+                    </h1>
+                </div>
+                <div className="flex items-center gap-3">
+                    <button className="bg-white border border-slate-200 text-slate-600 font-bold px-4 py-2 rounded-lg text-sm shadow-sm hover:bg-slate-50 transition">
+                        Preview Store
+                    </button>
+                    <button onClick={handleSave} className="bg-[#6C5CE7] hover:bg-indigo-600 text-white font-bold px-5 py-2 rounded-lg text-sm shadow-sm transition">
+                        Save Changes
                     </button>
                 </div>
+            </div>
 
-                {/* TARGET PRODUCT SELECTION */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Target Product</label>
-                    <div className="relative max-w-md">
-                        <select
-                            value={selectedProduct}
-                            onChange={(e) => setSelectedProduct(e.target.value)}
-                            className="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-800 font-medium rounded-xl px-4 py-3 pr-10 focus:outline-none focus:border-indigo-500 transition"
-                        >
-                            <option value="prod_1">Classic T-Shirt</option>
-                            <option value="prod_2">Custom Canvas Frame</option>
-                            <option value="prod_3">Coffee Mug</option>
-                        </select>
-                        <ChevronDown className="absolute right-4 top-3.5 w-5 h-5 text-slate-400 pointer-events-none" />
-                    </div>
-                </div>
-
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold text-slate-900">Custom Options ({options.length}/10)</h2>
+            {/* Tabs */}
+            <div className="flex gap-8 border-b border-slate-200 mb-8 overflow-x-auto custom-scrollbar">
+                {["Overview", "Options", "Option Values", "Variants", "Pricing", "Conditions", "Display", "Preview"].map(tab => (
                     <button
-                        onClick={addOption}
-                        className="text-indigo-600 bg-indigo-50 hover:bg-indigo-100 font-bold px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition"
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`pb-3 text-sm font-bold transition whitespace-nowrap border-b-2 ${activeTab === tab ? 'border-[#6C5CE7] text-[#6C5CE7]' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
                     >
-                        <Plus className="w-4 h-4" /> Add Option Group
+                        {tab}
                     </button>
-                </div>
+                ))}
+            </div>
 
-                <div className="flex flex-col gap-6 pb-20">
-                    {options.map((option, index) => (
-                        <div key={option.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                            {/* Option Header */}
-                            <div className="bg-slate-50 border-b border-slate-200 p-4 px-6 flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs">
-                                        {index + 1}
-                                    </div>
-                                    <input
-                                        type="text"
-                                        value={option.name}
-                                        onChange={(e) => updateOption(option.id, { name: e.target.value })}
-                                        className="text-lg font-extrabold text-slate-900 bg-transparent border-none outline-none focus:ring-0 max-w-xs"
-                                        placeholder="Option Name"
-                                    />
-                                    <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden ml-4">
-                                        {["dropdown", "radio", "swatch", "text"].map(type => (
-                                            <button
-                                                key={type}
-                                                onClick={() => updateOption(option.id, { type: type as OptionType })}
-                                                className={`px-3 py-1.5 text-xs font-bold capitalize transition ${option.type === type ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:bg-slate-50'}`}
-                                            >
-                                                {type}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <label className="flex items-center gap-2 text-sm font-medium text-slate-600 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={option.required}
-                                            onChange={(e) => updateOption(option.id, { required: e.target.checked })}
-                                            className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500"
-                                        />
-                                        Required
-                                    </label>
-                                    <button onClick={() => removeOption(option.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition">
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
+            {activeTab === "Options" && (
+                <div className="flex flex-col gap-8">
+
+                    {/* Options Table */}
+                    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                        <div className="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 className="text-lg font-bold text-slate-900">Options</h2>
+                                <p className="text-sm text-slate-500">Manage product options and their settings</p>
                             </div>
-
-                            {/* Option Body (Choices setup) */}
-                            <div className="p-6">
-                                <div className="mb-4">
-                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Display Label</label>
-                                    <input
-                                        type="text"
-                                        value={option.label}
-                                        onChange={(e) => updateOption(option.id, { label: e.target.value })}
-                                        className="w-full max-w-md bg-white border border-slate-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-indigo-500"
-                                    />
-                                </div>
-
-                                {["text", "file"].includes(option.type) ? (
-                                    <div className="p-8 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400">
-                                        <Settings2 className="w-8 h-8 mb-2 opacity-50" />
-                                        <p className="text-sm font-medium">This is an input field. Rules like extra cost per character can be implemented via Advanced Pricing Formula.</p>
-                                    </div>
-                                ) : (
-                                    <div>
-                                        <div className="flex items-center justify-between mb-3">
-                                            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Choices & Pricing Add-ons</label>
-                                        </div>
-
-                                        <div className="border border-slate-200 rounded-xl overflow-hidden">
-                                            <table className="w-full text-left text-sm">
-                                                <thead className="bg-slate-50 border-b border-slate-200">
-                                                    <tr>
-                                                        <th className="px-4 py-3 font-bold text-slate-700 w-1/2">Choice Label</th>
-                                                        <th className="px-4 py-3 font-bold text-slate-700">Price Add-on (+/-)</th>
-                                                        <th className="px-4 py-3 w-16"></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {option.choices.map((choice) => (
-                                                        <tr key={choice.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
-                                                            <td className="px-4 py-2">
-                                                                <input
-                                                                    type="text"
-                                                                    value={choice.label}
-                                                                    onChange={(e) => updateChoice(option.id, choice.id, { label: e.target.value })}
-                                                                    className="w-full bg-white border border-slate-200 rounded lg px-3 py-2 outline-none focus:border-indigo-500"
-                                                                />
-                                                            </td>
-                                                            <td className="px-4 py-2">
-                                                                <div className="flex flex-col relative max-w-[150px]">
-                                                                    <div className="relative">
-                                                                        <span className="absolute left-3 top-2.5 text-slate-400">$</span>
-                                                                        <input
-                                                                            type="number"
-                                                                            value={choice.priceModifier}
-                                                                            onChange={(e) => updateChoice(option.id, choice.id, { priceModifier: Number(e.target.value) })}
-                                                                            className="w-full bg-white border border-slate-200 rounded lg pl-7 pr-3 py-2 outline-none focus:border-indigo-500"
-                                                                        />
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-4 py-2 text-right">
-                                                                <button
-                                                                    onClick={() => removeChoice(option.id, choice.id)}
-                                                                    className="p-1.5 text-slate-400 hover:text-red-500 rounded transition"
-                                                                >
-                                                                    <X className="w-4 h-4" />
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                            <div className="bg-slate-50 p-3 flex justify-center border-t border-slate-200">
-                                                <button
-                                                    onClick={() => addChoice(option.id)}
-                                                    className="flex items-center gap-2 text-xs font-bold text-indigo-600 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition"
-                                                >
-                                                    <PlusCircle className="w-4 h-4" /> Add Choice
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-
-                    {options.length === 0 && (
-                        <div className="border border-dashed border-slate-300 rounded-2xl p-12 flex flex-col items-center justify-center text-slate-500">
-                            <Box className="w-12 h-12 mb-4 text-slate-300" />
-                            <h3 className="text-lg font-bold text-slate-700 mb-1">No Custom Options Added</h3>
-                            <p className="text-sm text-center max-w-sm mb-6">Create up to 10 custom product options. These will appear on the storefront bypassing Shopify's 3 variant limit.</p>
-                            <button onClick={addOption} className="bg-white border border-slate-200 text-slate-800 font-bold px-6 py-2.5 rounded-xl hover:bg-slate-50 shadow-sm">
-                                Create First Option
+                            <button onClick={addOption} className="flex items-center gap-2 bg-[#6C5CE7] text-white font-bold px-4 py-2 rounded-lg text-sm shadow-sm hover:bg-indigo-600 transition">
+                                <Plus className="w-4 h-4" /> Add Option
                             </button>
+                        </div>
+
+                        <div className="border border-slate-200 rounded-xl overflow-hidden">
+                            <table className="w-full text-left text-sm">
+                                <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-medium text-[13px]">
+                                    <tr>
+                                        <th className="p-4 w-12 text-center"></th>
+                                        <th className="p-4">Option</th>
+                                        <th className="p-4">Type</th>
+                                        <th className="p-4 text-center">Values</th>
+                                        <th className="p-4 text-center">Required</th>
+                                        <th className="p-4 text-center">Status</th>
+                                        <th className="p-4 text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {options.map((opt) => (
+                                        <tr key={opt.id} onClick={() => setSelectedOptionId(opt.id)} className={`border-b border-slate-100 hover:bg-slate-50/50 transition cursor-pointer ${selectedOptionId === opt.id ? 'bg-indigo-50/30' : ''}`}>
+                                            <td className="p-4 text-center"><GripVertical className="w-4 h-4 text-slate-300 inline cursor-grab" /></td>
+                                            <td className="p-4 font-bold text-slate-800 flex items-center gap-3">
+                                                <div className={`w-5 h-5 rounded ${badgeColors[opt.type] || "bg-slate-500"} flex items-center justify-center text-white text-[10px]`}>
+                                                    <Settings2 className="w-3 h-3" />
+                                                </div>
+                                                {opt.name}
+                                            </td>
+                                            <td className="p-4 text-slate-600 text-[13px]">{opt.type}</td>
+                                            <td className="p-4 text-center font-bold text-slate-600">{opt.choices.length || '-'}</td>
+                                            <td className="p-4 text-center font-medium text-slate-800">{opt.required ? 'Yes' : 'No'}</td>
+                                            <td className="p-4 text-center">
+                                                <div className="w-10 h-5 bg-[#6C5CE7] rounded-full mx-auto relative">
+                                                    <div className="w-3.5 h-3.5 bg-white rounded-full absolute right-1 top-0.5"></div>
+                                                </div>
+                                            </td>
+                                            <td className="p-4 text-center text-slate-400">
+                                                <div className="flex items-center justify-center gap-3">
+                                                    <button className="hover:text-slate-600 transition"><Settings2 className="w-4 h-4" /></button>
+                                                    <button onClick={(e) => { e.stopPropagation(); removeOption(opt.id); }} className="hover:text-red-500 transition"><Trash2 className="w-4 h-4" /></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* Option Settings Form */}
+                    {activeOption && (
+                        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                            <h2 className="text-lg font-bold text-slate-900 mb-6">Option Settings ({activeOption.name})</h2>
+
+                            <div className="grid grid-cols-2 gap-8 mb-8">
+                                <div className="flex flex-col gap-5">
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 mb-1.5">Option Label</label>
+                                        <input type="text" value={activeOption.label} onChange={e => updateActiveOption({ label: e.target.value, name: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 outline-none focus:border-[#6C5CE7]" />
+                                    </div>
+                                    <label className="flex items-start gap-3 cursor-pointer group">
+                                        <div className="mt-0.5"><input type="checkbox" checked={activeOption.required} onChange={e => updateActiveOption({ required: e.target.checked })} className="w-4 h-4 rounded text-[#6C5CE7] border-slate-300 focus:ring-[#6C5CE7]" /></div>
+                                        <div>
+                                            <span className="block text-sm font-bold text-slate-800">Required Option</span>
+                                            <span className="block text-[13px] text-slate-500">Customer must select a value</span>
+                                        </div>
+                                    </label>
+                                    <label className="flex items-start gap-3 cursor-pointer group">
+                                        <div className="mt-0.5"><input type="checkbox" checked={activeOption.showLabel} onChange={e => updateActiveOption({ showLabel: e.target.checked })} className="w-4 h-4 rounded text-[#6C5CE7] border-slate-300 focus:ring-[#6C5CE7]" /></div>
+                                        <div>
+                                            <span className="block text-sm font-bold text-slate-800">Show Option Label</span>
+                                            <span className="block text-[13px] text-slate-500">Show label on the product page</span>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div className="flex flex-col gap-5">
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 mb-1.5">Option Type</label>
+                                        <div className="relative">
+                                            <select value={activeOption.type} onChange={e => updateActiveOption({ type: e.target.value as any })} className="appearance-none w-full border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-medium text-slate-800 outline-none focus:border-[#6C5CE7] bg-white">
+                                                <option>Color Swatch</option>
+                                                <option>Dropdown</option>
+                                                <option>Button</option>
+                                                <option>Radio</option>
+                                                <option>File Upload</option>
+                                            </select>
+                                            <ChevronDown className="w-4 h-4 text-slate-400 absolute right-4 top-4 pointer-events-none" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 mb-1.5">Help Text (Optional)</label>
+                                        <input type="text" value={activeOption.helpText} onChange={e => updateActiveOption({ helpText: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 outline-none focus:border-[#6C5CE7]" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 mb-2">Option Layout</label>
+                                        <div className="flex items-center gap-3">
+                                            {["Vertical", "Horizontal", "Swatch Grid", "Pill"].map(lay => (
+                                                <div
+                                                    key={lay}
+                                                    onClick={() => updateActiveOption({ layout: lay as any })}
+                                                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-[13px] font-bold cursor-pointer transition ${activeOption.layout === lay ? 'border-[#6C5CE7] text-[#6C5CE7] bg-indigo-50/50' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                                                >
+                                                    {activeOption.layout === lay && <span className="w-3.5 h-3.5 rounded-full bg-[#6C5CE7] text-white flex items-center justify-center text-[8px] mr-1">✓</span>}
+                                                    {activeOption.layout !== lay && <span className="w-3.5 h-3.5 rounded-full border border-slate-300 mr-1"></span>}
+                                                    {lay}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="border border-slate-200 rounded-xl p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition mb-8">
+                                <span className="text-sm font-bold text-slate-800">Advanced Settings (Price Multipliers & Logic)</span>
+                                <ChevronDown className="w-5 h-5 text-slate-400" />
+                            </div>
+
+                            {/* Live Preview Container directly linked to state */}
+                            <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-inner relative">
+                                <div className="px-6 py-3 border-b border-[#E2E8F0] flex items-center justify-between text-indigo-600 bg-white">
+                                    <span className="text-sm font-bold flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span> Live Store Preview</span>
+                                    <span className="text-xs font-bold underline cursor-pointer hover:text-indigo-800">View Full Preview</span>
+                                </div>
+                                <div className="p-8 pb-12">
+                                    <div className="flex gap-12 flex-wrap">
+                                        {options.map(opt => (
+                                            <div key={opt.id} className="flex flex-col gap-2">
+                                                {opt.showLabel && <span className="text-sm font-bold text-slate-800">{opt.label} {opt.required && <span className="text-red-500">*</span>}</span>}
+                                                {opt.helpText && <span className="text-[11px] text-slate-500 -mt-1">{opt.helpText}</span>}
+
+                                                {/* Render dynamic UI per type */}
+                                                {opt.type === "Color Swatch" && (
+                                                    <div className="flex gap-2">
+                                                        {opt.choices.map(c => (
+                                                            <div
+                                                                key={c.id}
+                                                                onClick={() => setPreviewSelections({ ...previewSelections, [opt.id]: c.id })}
+                                                                title={`${c.label} (+ $${c.priceModifier})`}
+                                                                style={{ backgroundColor: c.label.toLowerCase() }}
+                                                                className={`w-8 h-8 rounded-full border border-slate-200 cursor-pointer ${previewSelections[opt.id] === c.id ? `ring-2 ring-offset-2 ring-black` : 'hover:ring-2 ring-offset-2 ring-slate-200'}`}
+                                                            ></div>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {opt.type === "Dropdown" && (
+                                                    <div className="relative w-32">
+                                                        <select
+                                                            value={previewSelections[opt.id] || ""}
+                                                            onChange={e => setPreviewSelections({ ...previewSelections, [opt.id]: e.target.value })}
+                                                            className="appearance-none w-full border border-slate-300 rounded bg-white px-3 py-1.5 text-sm font-medium outline-none cursor-pointer"
+                                                        >
+                                                            {opt.choices.map(c => (
+                                                                <option key={c.id} value={c.id}>{c.label} {c.priceModifier ? `(+$${c.priceModifier})` : ''}</option>
+                                                            ))}
+                                                        </select>
+                                                        <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2 top-2 pointer-events-none" />
+                                                    </div>
+                                                )}
+
+                                                {opt.type === "Button" && (
+                                                    <div className="flex gap-2 text-sm">
+                                                        {opt.choices.map(c => (
+                                                            <button
+                                                                key={c.id}
+                                                                onClick={() => setPreviewSelections({ ...previewSelections, [opt.id]: c.id })}
+                                                                className={`border font-medium px-4 py-1.5 rounded transition ${previewSelections[opt.id] === c.id ? 'border-[#6C5CE7] text-[#6C5CE7] bg-indigo-50' : 'border-slate-300 text-slate-600 bg-white hover:bg-slate-50'}`}
+                                                            >
+                                                                {c.label} {c.priceModifier ? `(+$${c.priceModifier})` : ''}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {opt.type === "File Upload" && (
+                                                    <input type="file" className="text-sm" />
+                                                )}
+
+                                                {opt.type === "Radio" && (
+                                                    <div className="flex flex-col gap-2 mt-1">
+                                                        {opt.choices.map(c => (
+                                                            <label key={c.id} className="flex items-center gap-2 cursor-pointer text-sm">
+                                                                <input
+                                                                    type="radio"
+                                                                    name={`opt_${opt.id}`}
+                                                                    checked={previewSelections[opt.id] === c.id}
+                                                                    onChange={() => setPreviewSelections({ ...previewSelections, [opt.id]: c.id })}
+                                                                /> {c.label}
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+
+                                    </div>
+
+                                    <div className="mt-12 flex items-center justify-between border-t border-[#E2E8F0] pt-6">
+                                        <div className="text-slate-800 font-bold flex items-center gap-2">
+                                            Price: <span className="text-2xl text-[#6C5CE7]">${(basePrice + extraPrice).toFixed(2)}</span>
+                                        </div>
+                                        <button className="bg-[#6C5CE7] hover:bg-indigo-600 text-white font-bold px-8 py-3 rounded-lg shadow transition text-[15px]">
+                                            Add to Cart
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>
-
-            </div>
+            )}
+            {activeTab !== "Options" && (
+                <div className="bg-white border border-slate-200 rounded-2xl p-10 shadow-sm text-center">
+                    <h2 className="text-lg font-bold text-slate-700">Tab Content placeholder for {activeTab}</h2>
+                    <p className="text-slate-500 mt-2">The focus UI for Option Building is located under "Options".</p>
+                </div>
+            )}
         </div>
     );
 }
