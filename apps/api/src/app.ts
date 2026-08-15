@@ -20,10 +20,13 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+import pricingRoutes from "./routes/pricing.routes.js";
+
 // Routes
 app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/config", configRoutes);
 app.use("/api/v1/designs", designRoutes);
+app.use("/api/v1/pricing", pricingRoutes);
 
 // Root path confirmation
 app.get("/", (_req, res) => {
