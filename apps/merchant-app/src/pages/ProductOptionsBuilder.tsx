@@ -1,174 +1,282 @@
 import { useState } from "react";
-import { Plus, Trash2, Settings, GripVertical, Infinity as InfinityIcon } from "lucide-react";
+import { Plus, Trash2, Save, Settings2, X, PlusCircle, ChevronDown, Box } from "lucide-react";
+
+type Choice = { id: string; label: string; priceModifier: number; isPercentage: boolean };
+type OptionType = "dropdown" | "radio" | "checkbox" | "swatch" | "text" | "file";
+
+type ProductOption = {
+    id: string;
+    type: OptionType;
+    name: string;
+    label: string;
+    required: boolean;
+    choices: Choice[];
+};
 
 export function ProductOptionsBuilder() {
-    const [options] = useState([
-        { id: 1, type: "color_swatch", label: "Color", description: "Color swatches", items: ["red", "orange", "yellow", "green", "blue", "purple", "black"], extra: "+ $5.00" },
-        { id: 2, type: "image_swatch", label: "Design", description: "Image swatches", items: ["pattern1", "pattern2", "wood", "marble", "terrazzo"], extra: "+ $10.00" },
-        { id: 3, type: "text", label: "Personalization", description: "Text field", placeholder: "Emily", help: "Up to 20 characters", extra: "+ $5.00" },
-        { id: 4, type: "dropdown", label: "Font Style", description: "Dropdown", placeholder: "Script", extra: "+ $3.00" },
-        { id: 5, type: "checkbox", label: "Gift Wrap", description: "Checkbox", text: "Yes, please gift wrap my order", checked: true, extra: "+ $4.00" },
-        { id: 6, type: "date", label: "Delivery Date", description: "Date picker", placeholder: "May 24, 2025", extra: "+ $7.00" }
+    const [selectedProduct, setSelectedProduct] = useState("prod_1");
+
+    const [options, setOptions] = useState<ProductOption[]>([
+        {
+            id: "opt_1",
+            type: "dropdown",
+            name: "Material",
+            label: "Select Material",
+            required: true,
+            choices: [
+                { id: "c1", label: "Standard Cotton", priceModifier: 0, isPercentage: false },
+                { id: "c2", label: "Premium Silk", priceModifier: 15, isPercentage: false },
+            ]
+        }
     ]);
 
+    const addOption = () => {
+        if (options.length >= 10) {
+            alert("Maximum 10 options allowed per product.");
+            return;
+        }
+        setOptions([
+            ...options,
+            {
+                id: Date.now().toString(),
+                type: "dropdown",
+                name: "New Option",
+                label: "Select Option",
+                required: false,
+                choices: []
+            }
+        ]);
+    };
+
+    const removeOption = (id: string) => {
+        setOptions(options.filter(o => o.id !== id));
+    };
+
+    const updateOption = (id: string, updates: Partial<ProductOption>) => {
+        setOptions(options.map(o => o.id === id ? { ...o, ...updates } : o));
+    };
+
+    const addChoice = (optionId: string) => {
+        setOptions(options.map(o => {
+            if (o.id === optionId) {
+                return {
+                    ...o,
+                    choices: [...o.choices, { id: Date.now().toString(), label: "New Choice", priceModifier: 0, isPercentage: false }]
+                };
+            }
+            return o;
+        }));
+    };
+
+    const removeChoice = (optionId: string, choiceId: string) => {
+        setOptions(options.map(o => {
+            if (o.id === optionId) {
+                return { ...o, choices: o.choices.filter(c => c.id !== choiceId) };
+            }
+            return o;
+        }));
+    };
+
+    const updateChoice = (optionId: string, choiceId: string, updates: Partial<Choice>) => {
+        setOptions(options.map(o => {
+            if (o.id === optionId) {
+                return {
+                    ...o,
+                    choices: o.choices.map(c => c.id === choiceId ? { ...c, ...updates } : c)
+                };
+            }
+            return o;
+        }));
+    };
+
+    const handleSave = () => {
+        console.log("Saving Options:", options);
+        alert("Product Options & Add-On Rules Saved Successfully!");
+    };
+
     return (
-        <div className="flex-1 overflow-auto p-10 bg-[#0A071B] min-h-screen text-slate-100 flex gap-12 font-sans font-medium">
-            {/* Left Header/Hero */}
-            <div className="w-[450px] shrink-0 pt-8 flex flex-col gap-6">
-                <div className="flex items-center gap-3 bg-white/5 w-fit px-4 py-2 rounded-xl mb-4 border border-white/10">
-                    <div className="w-8 h-8 rounded bg-gradient-to-br from-cyan-400 to-indigo-500 flex items-center justify-center font-black text-white text-lg">C</div>
-                    <div className="flex flex-col">
-                        <span className="font-bold text-lg tracking-wide leading-tight text-white">CRAFTIFY</span>
-                        <span className="text-[10px] uppercase tracking-widest text-cyan-300">Unlimited Product Options</span>
+        <div className="flex h-screen bg-[#F8F9FA] text-slate-800 font-sans overflow-hidden">
+            <div className="flex-1 flex flex-col max-w-6xl mx-auto w-full p-8 overflow-y-auto">
+                <div className="flex items-center justify-between mb-8">
+                    <div>
+                        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Product Add-On Options</h1>
+                        <p className="text-sm text-slate-500 mt-1">Configure limitless options and variant pricing rules for products.</p>
                     </div>
-                </div>
-
-                <h1 className="text-6xl font-extrabold leading-[1.1] text-white tracking-tight">
-                    Go Beyond<br />Shopify's<br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">3-Option Limit</span>
-                </h1>
-                
-                <p className="text-lg text-slate-300 max-w-md mt-2 leading-relaxed">
-                    Create unlimited custom product options with 42+ option types seamlessly integrated into your store.
-                </p>
-
-                <div className="mt-8 flex flex-col gap-4 w-fit">
-                    <button className="flex items-center gap-3 bg-slate-900/50 border border-cyan-500/30 px-6 py-3.5 rounded-2xl text-lg font-bold text-white hover:bg-slate-900 transition shadow-[0_0_20px_rgba(34,211,238,0.1)] hover:shadow-[0_0_30px_rgba(34,211,238,0.2)]">
-                        <InfinityIcon className="w-6 h-6 text-cyan-400" />
-                        Unlimited Options
-                    </button>
-                    <button className="flex items-center gap-3 bg-slate-900/50 border border-indigo-500/30 px-6 py-3.5 rounded-2xl text-lg font-bold text-slate-200 hover:bg-slate-900 transition">
-                        <div className="flex font-black text-indigo-400 text-xl tracking-tight">42+</div>
-                        Option Type
+                    <button
+                        onClick={handleSave}
+                        className="bg-slate-900 hover:bg-black text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition text-sm flex items-center gap-2"
+                    >
+                        <Save className="w-4 h-4" /> Save Options
                     </button>
                 </div>
-            </div>
 
-            {/* Right Panel / Interactive Builder */}
-            <div className="flex-1 flex flex-col pt-4 max-w-3xl">
-                
-                {/* MOCK SHOPIFY HEADER */}
-                <div className="bg-white rounded-2xl p-6 mb-8 w-fit shadow-xl border border-slate-200 ml-auto mr-12 relative animate-pulse">
-                    <h3 className="text-slate-800 font-bold mb-3">Shopify Default option</h3>
-                    <div className="flex gap-4">
-                        <div className="w-32 h-10 border border-slate-200 rounded-lg flex items-center justify-between px-3 text-slate-500 text-sm">Size <span className="text-xs">▼</span></div>
-                        <div className="w-32 h-10 border border-slate-200 rounded-lg flex items-center justify-between px-3 text-slate-500 text-sm">Color <span className="text-xs">▼</span></div>
-                        <div className="w-32 h-10 border border-slate-200 rounded-lg flex items-center justify-between px-3 text-slate-500 text-sm">Material <span className="text-xs">▼</span></div>
-                    </div>
-                    {/* Arrow down pointing to the new tool */}
-                    <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center">
-                        <div className="w-0.5 h-4 bg-cyan-400/50 mb-1"></div>
-                        <div className="w-2.5 h-2.5 rotate-45 border-b-2 border-r-2 border-cyan-400"></div>
+                {/* TARGET PRODUCT SELECTION */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Target Product</label>
+                    <div className="relative max-w-md">
+                        <select
+                            value={selectedProduct}
+                            onChange={(e) => setSelectedProduct(e.target.value)}
+                            className="w-full appearance-none bg-slate-50 border border-slate-200 text-slate-800 font-medium rounded-xl px-4 py-3 pr-10 focus:outline-none focus:border-indigo-500 transition"
+                        >
+                            <option value="prod_1">Classic T-Shirt</option>
+                            <option value="prod_2">Custom Canvas Frame</option>
+                            <option value="prod_3">Coffee Mug</option>
+                        </select>
+                        <ChevronDown className="absolute right-4 top-3.5 w-5 h-5 text-slate-400 pointer-events-none" />
                     </div>
                 </div>
 
-                {/* MAIN BUILDER BOARD */}
-                <div className="bg-white rounded-3xl p-8 shadow-2xl border border-slate-100 flex flex-col gap-6 relative z-10 w-full overflow-hidden">
-                    
-                    <div className="flex items-center justify-between mb-2">
-                        <h2 className="text-xl font-bold text-slate-900">Craftify Product Options</h2>
-                        <div className="bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-full flex items-center gap-2 text-xs font-bold border border-emerald-100">
-                            <InfinityIcon className="w-3.5 h-3.5" /> Unlimited Options
-                        </div>
-                    </div>
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-bold text-slate-900">Custom Options ({options.length}/10)</h2>
+                    <button
+                        onClick={addOption}
+                        className="text-indigo-600 bg-indigo-50 hover:bg-indigo-100 font-bold px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition"
+                    >
+                        <Plus className="w-4 h-4" /> Add Option Group
+                    </button>
+                </div>
 
-                    <div className="flex flex-col gap-3">
-                        {options.map((opt) => (
-                            <div key={opt.id} className="flex items-center gap-4 py-3 px-1 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition group rounded-lg">
-                                <GripVertical className="w-4 h-4 text-slate-300 cursor-grab opacity-0 group-hover:opacity-100 transition" />
-                                
-                                {/* Icon */}
-                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm
-                                    ${opt.type === "color_swatch" ? "bg-cyan-50 text-cyan-500" :
-                                      opt.type === "image_swatch" ? "bg-blue-50 text-blue-500" : 
-                                      opt.type === "text" ? "bg-emerald-50 text-emerald-500" :
-                                      opt.type === "dropdown" ? "bg-purple-50 text-purple-500" :
-                                      opt.type === "checkbox" ? "bg-amber-50 text-amber-500" : 
-                                      "bg-indigo-50 text-indigo-500"
-                                    }`}>
-                                    {opt.type === "color_swatch" && <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-rose-400 via-amber-400 to-emerald-400"></div>}
-                                    {opt.type === "image_swatch" && <div className="w-5 h-5 bg-blue-300 rounded-sm"></div>}
-                                    {opt.type === "text" && <span className="font-serif font-bold text-lg">T</span>}
-                                    {opt.type === "dropdown" && <div className="space-y-1"><div className="w-4 h-0.5 bg-current rounded"/><div className="w-4 h-0.5 bg-current rounded"/><div className="w-4 h-0.5 bg-current rounded"/></div>}
-                                    {opt.type === "checkbox" && <div className="w-4 h-4 border-2 border-current rounded-sm flex items-center justify-center"><div className="w-1.5 h-1.5 bg-current rounded-sm"></div></div>}
-                                    {opt.type === "date" && <div className="w-4 h-4 border-2 border-current rounded-sm border-t-4"></div>}
+                <div className="flex flex-col gap-6 pb-20">
+                    {options.map((option, index) => (
+                        <div key={option.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                            {/* Option Header */}
+                            <div className="bg-slate-50 border-b border-slate-200 p-4 px-6 flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs">
+                                        {index + 1}
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={option.name}
+                                        onChange={(e) => updateOption(option.id, { name: e.target.value })}
+                                        className="text-lg font-extrabold text-slate-900 bg-transparent border-none outline-none focus:ring-0 max-w-xs"
+                                        placeholder="Option Name"
+                                    />
+                                    <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden ml-4">
+                                        {["dropdown", "radio", "swatch", "text"].map(type => (
+                                            <button
+                                                key={type}
+                                                onClick={() => updateOption(option.id, { type: type as OptionType })}
+                                                className={`px-3 py-1.5 text-xs font-bold capitalize transition ${option.type === type ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:bg-slate-50'}`}
+                                            >
+                                                {type}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
-
-                                {/* Labels */}
-                                <div className="w-32 flex flex-col shrink-0">
-                                    <span className="text-sm font-bold text-slate-800">{opt.label}</span>
-                                    <span className="text-[11px] text-slate-400 font-medium">{opt.description}</span>
-                                </div>
-
-                                {/* Controls Mock representation */}
-                                <div className="flex-1 flex flex-col justify-center">
-                                    {opt.type === "color_swatch" && (
-                                        <div className="flex gap-2 items-center">
-                                            {opt.items?.map((c, j) => (
-                                                <div key={j} className={`w-7 h-7 rounded-full shadow-sm cursor-pointer ${j === 3 ? 'ring-2 ring-offset-2 ring-emerald-500' : ''}`} style={{ backgroundColor: c }}></div>
-                                            ))}
-                                        </div>
-                                    )}
-                                    {opt.type === "image_swatch" && (
-                                        <div className="flex gap-2 items-center">
-                                            {opt.items?.map((_c, j) => (
-                                                <div key={j} className={`w-8 h-8 rounded border border-slate-200 cursor-pointer ${j === 1 ? 'ring-2 ring-offset-2 ring-cyan-500' : ''} bg-slate-100 overflow-hidden`}>
-                                                    <div className="w-full h-full bg-slate-300"></div> {/* Mock Image block */}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                    {opt.type === "text" && (
-                                        <div className="flex flex-col gap-1 w-full max-w-xs">
-                                            <input type="text" className="w-full h-9 border border-slate-200 rounded-lg px-3 text-sm text-slate-700 bg-white" defaultValue={opt.placeholder} />
-                                            <span className="text-[10px] text-slate-400 ml-1">{opt.help}</span>
-                                        </div>
-                                    )}
-                                    {opt.type === "dropdown" && (
-                                        <div className="w-full max-w-xs h-9 border border-slate-200 rounded-lg px-3 text-sm text-slate-700 flex items-center justify-between bg-white">
-                                            {opt.placeholder} <span className="text-xs text-slate-400">▼</span>
-                                        </div>
-                                    )}
-                                    {opt.type === "checkbox" && (
-                                        <label className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-                                            <input type="checkbox" checked={opt.checked} readOnly className="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500 accent-emerald-500" />
-                                            {opt.text}
-                                        </label>
-                                    )}
-                                    {opt.type === "date" && (
-                                        <div className="w-full max-w-xs h-9 border border-slate-200 rounded-lg px-3 text-sm text-slate-700 flex items-center justify-between bg-white">
-                                            {opt.placeholder} <div className="w-4 h-4 border-2 border-slate-300 rounded-sm border-t-4"></div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Price Extra */}
-                                <div className="w-20 text-right shrink-0">
-                                    <span className="text-sm font-bold text-emerald-500">{opt.extra}</span>
-                                </div>
-
-                                {/* Actions */}
-                                <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition shrink-0">
-                                    <button className="p-1.5 hover:bg-slate-100 rounded text-slate-400 hover:text-indigo-600"><Settings className="w-4 h-4" /></button>
-                                    <button className="p-1.5 hover:bg-slate-100 rounded text-slate-400 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                                <div className="flex items-center gap-4">
+                                    <label className="flex items-center gap-2 text-sm font-medium text-slate-600 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={option.required}
+                                            onChange={(e) => updateOption(option.id, { required: e.target.checked })}
+                                            className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500"
+                                        />
+                                        Required
+                                    </label>
+                                    <button onClick={() => removeOption(option.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition">
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
                                 </div>
                             </div>
-                        ))}
 
-                    </div>
+                            {/* Option Body (Choices setup) */}
+                            <div className="p-6">
+                                <div className="mb-4">
+                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Display Label</label>
+                                    <input
+                                        type="text"
+                                        value={option.label}
+                                        onChange={(e) => updateOption(option.id, { label: e.target.value })}
+                                        className="w-full max-w-md bg-white border border-slate-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-indigo-500"
+                                    />
+                                </div>
 
-                    <div className="mt-4 border-t border-slate-100 pt-6 flex justify-between items-center">
-                        <button className="bg-indigo-50 text-indigo-600 font-bold px-4 py-2.5 rounded-xl hover:bg-indigo-100 transition flex items-center gap-2 text-sm">
-                            <Plus className="w-4 h-4" /> Add Option
-                        </button>
-                        <button className="bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-black px-6 py-2.5 rounded-xl transition shadow-[0_0_15px_rgba(34,211,238,0.4)] text-sm">
-                            Save Configuration
-                        </button>
-                    </div>
+                                {["text", "file"].includes(option.type) ? (
+                                    <div className="p-8 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400">
+                                        <Settings2 className="w-8 h-8 mb-2 opacity-50" />
+                                        <p className="text-sm font-medium">This is an input field. Rules like extra cost per character can be implemented via Advanced Pricing Formula.</p>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Choices & Pricing Add-ons</label>
+                                        </div>
 
+                                        <div className="border border-slate-200 rounded-xl overflow-hidden">
+                                            <table className="w-full text-left text-sm">
+                                                <thead className="bg-slate-50 border-b border-slate-200">
+                                                    <tr>
+                                                        <th className="px-4 py-3 font-bold text-slate-700 w-1/2">Choice Label</th>
+                                                        <th className="px-4 py-3 font-bold text-slate-700">Price Add-on (+/-)</th>
+                                                        <th className="px-4 py-3 w-16"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {option.choices.map((choice) => (
+                                                        <tr key={choice.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
+                                                            <td className="px-4 py-2">
+                                                                <input
+                                                                    type="text"
+                                                                    value={choice.label}
+                                                                    onChange={(e) => updateChoice(option.id, choice.id, { label: e.target.value })}
+                                                                    className="w-full bg-white border border-slate-200 rounded lg px-3 py-2 outline-none focus:border-indigo-500"
+                                                                />
+                                                            </td>
+                                                            <td className="px-4 py-2">
+                                                                <div className="flex flex-col relative max-w-[150px]">
+                                                                    <div className="relative">
+                                                                        <span className="absolute left-3 top-2.5 text-slate-400">$</span>
+                                                                        <input
+                                                                            type="number"
+                                                                            value={choice.priceModifier}
+                                                                            onChange={(e) => updateChoice(option.id, choice.id, { priceModifier: Number(e.target.value) })}
+                                                                            className="w-full bg-white border border-slate-200 rounded lg pl-7 pr-3 py-2 outline-none focus:border-indigo-500"
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-4 py-2 text-right">
+                                                                <button
+                                                                    onClick={() => removeChoice(option.id, choice.id)}
+                                                                    className="p-1.5 text-slate-400 hover:text-red-500 rounded transition"
+                                                                >
+                                                                    <X className="w-4 h-4" />
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                            <div className="bg-slate-50 p-3 flex justify-center border-t border-slate-200">
+                                                <button
+                                                    onClick={() => addChoice(option.id)}
+                                                    className="flex items-center gap-2 text-xs font-bold text-indigo-600 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition"
+                                                >
+                                                    <PlusCircle className="w-4 h-4" /> Add Choice
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+
+                    {options.length === 0 && (
+                        <div className="border border-dashed border-slate-300 rounded-2xl p-12 flex flex-col items-center justify-center text-slate-500">
+                            <Box className="w-12 h-12 mb-4 text-slate-300" />
+                            <h3 className="text-lg font-bold text-slate-700 mb-1">No Custom Options Added</h3>
+                            <p className="text-sm text-center max-w-sm mb-6">Create up to 10 custom product options. These will appear on the storefront bypassing Shopify's 3 variant limit.</p>
+                            <button onClick={addOption} className="bg-white border border-slate-200 text-slate-800 font-bold px-6 py-2.5 rounded-xl hover:bg-slate-50 shadow-sm">
+                                Create First Option
+                            </button>
+                        </div>
+                    )}
                 </div>
+
             </div>
-            
         </div>
     );
 }
