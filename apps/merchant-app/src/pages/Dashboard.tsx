@@ -1,6 +1,35 @@
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
+import { useEffect, useState } from "react";
 import { Bell, RefreshCw, ShoppingBag, Sliders, Box, Grid, List, CheckCircle2, FileText, AlertTriangle, Search, Plus, MoreVertical } from "lucide-react";
 
 export function Dashboard() {
+    const [products, setProducts] = useState<any[]>([]);
+    const [syncing, setSyncing] = useState(false);
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
+    const fetchProducts = () => {
+        fetch(`${API_URL}/products`)
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) setProducts(data);
+                else if (data && data.success) setProducts(data.data.products || data.data);
+            })
+            .catch(err => console.error(err));
+    };
+
+    const handleSync = () => {
+        setSyncing(true);
+        fetch(`${API_URL}/products/sync`, { method: 'POST' })
+            .then(() => fetchProducts())
+            .catch(() => alert('Failed to sync products'))
+            .finally(() => setSyncing(false));
+    };
+
+    const activeProducts = products.filter(p => p.status?.toLowerCase() === 'active').length;
+    const draftProducts = products.filter(p => p.status?.toLowerCase() === 'draft').length;
     return (
         <div className="flex-1 overflow-auto bg-[#F8FAFC] text-slate-800 font-sans p-8">
             {/* Header */}
@@ -10,8 +39,8 @@ export function Dashboard() {
                     <p className="text-sm text-slate-500 mt-1">Overview of your store and product configurations</p>
                 </div>
                 <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-2 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 shadow-sm transition">
-                        <RefreshCw className="w-4 h-4" /> Sync Shopify
+                    <button onClick={handleSync} disabled={syncing} className="flex items-center gap-2 bg-white border border-slate-200 px-4 py-2 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 shadow-sm transition disabled:opacity-50">
+                        <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} /> {syncing ? 'Syncing...' : 'Sync Shopify'}
                     </button>
                     <button className="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-50 shadow-sm relative">
                         <Bell className="w-5 h-5" />
@@ -22,14 +51,14 @@ export function Dashboard() {
 
             {/* Stat Cards Grid (4x2) */}
             <div className="grid grid-cols-4 gap-4 mb-10">
-                <StatCard icon={<ShoppingBag className="w-6 h-6 text-indigo-500" />} title="Total Products" value="378" subtitle="View all products" bg="bg-indigo-50" />
-                <StatCard icon={<Sliders className="w-6 h-6 text-emerald-500" />} title="With Custom Options" value="156" subtitle="41.27% of products" bg="bg-emerald-50" />
-                <StatCard icon={<Box className="w-6 h-6 text-blue-500" />} title="With Variants" value="132" subtitle="34.92% of products" bg="bg-blue-50" />
-                <StatCard icon={<Grid className="w-6 h-6 text-orange-500" />} title="Total Options" value="28" subtitle="Across all products" bg="bg-orange-50" />
-                <StatCard icon={<List className="w-6 h-6 text-purple-500" />} title="Total Variants" value="2,456" subtitle="Variant combinations" bg="bg-purple-50" />
-                <StatCard icon={<CheckCircle2 className="w-6 h-6 text-green-500" />} title="Active Products" value="352" subtitle="Active in store" bg="bg-green-50" />
-                <StatCard icon={<FileText className="w-6 h-6 text-amber-500" />} title="Draft Products" value="18" subtitle="In draft status" bg="bg-amber-50" />
-                <StatCard icon={<AlertTriangle className="w-6 h-6 text-red-500" />} title="Out of Stock" value="27" subtitle="Products out of stock" bg="bg-red-50" />
+                <StatCard icon={<ShoppingBag className="w-6 h-6 text-indigo-500" />} title="Total Products" value={products.length} subtitle="View all products" bg="bg-indigo-50" />
+                <StatCard icon={<Sliders className="w-6 h-6 text-emerald-500" />} title="With Custom Options" value="-" subtitle="Placeholder" bg="bg-emerald-50" />
+                <StatCard icon={<Box className="w-6 h-6 text-blue-500" />} title="With Variants" value="-" subtitle="Placeholder" bg="bg-blue-50" />
+                <StatCard icon={<Grid className="w-6 h-6 text-orange-500" />} title="Total Options" value="-" subtitle="Placeholder" bg="bg-orange-50" />
+                <StatCard icon={<List className="w-6 h-6 text-purple-500" />} title="Total Variants" value="-" subtitle="Placeholder" bg="bg-purple-50" />
+                <StatCard icon={<CheckCircle2 className="w-6 h-6 text-green-500" />} title="Active Products" value={activeProducts} subtitle="Active in store" bg="bg-green-50" />
+                <StatCard icon={<FileText className="w-6 h-6 text-amber-500" />} title="Draft Products" value={draftProducts} subtitle="In draft status" bg="bg-amber-50" />
+                <StatCard icon={<AlertTriangle className="w-6 h-6 text-red-500" />} title="Out of Stock" value="-" subtitle="Placeholder" bg="bg-red-50" />
             </div>
 
             {/* Recently Updated Products */}
@@ -39,11 +68,17 @@ export function Dashboard() {
                     <button className="text-sm font-bold text-[#6C5CE7] hover:text-indigo-700">View all &gt;</button>
                 </div>
                 <div className="grid grid-cols-5 gap-4">
-                    <ProductCard title="Custom Banner" updated="Updated 2h ago" image="https://images.unsplash.com/photo-1542382156909-9ae37b3f5b99?auto=format&fit=crop&w=300&q=80" />
-                    <ProductCard title="Polo Shirt" updated="Updated 5h ago" image="https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=300&q=80" />
-                    <ProductCard title="Business Card" updated="Updated 1d ago" image="https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&w=300&q=80" />
-                    <ProductCard title="Hoodie" updated="Updated 1d ago" image="https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=300&q=80" />
-                    <ProductCard title="Mug" updated="Updated 2d ago" image="https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=300&q=80" />
+                    {products.slice(0, 5).map(p => (
+                        <ProductCard
+                            key={p._id || p.id}
+                            title={p.title}
+                            updated={new Date(p.updatedAt || p.createdAt).toLocaleDateString()}
+                            image={p.featuredImage || "https://images.unsplash.com/photo-1542382156909-9ae37b3f5b99?auto=format&fit=crop&w=300&q=80"}
+                        />
+                    ))}
+                    {products.length === 0 && (
+                        <div className="col-span-5 text-sm text-slate-500 py-4">No products found. Click "Sync Shopify" to import products.</div>
+                    )}
                 </div>
             </div>
 
@@ -85,15 +120,23 @@ export function Dashboard() {
                         </tr>
                     </thead>
                     <tbody>
-                        <TableRow id="#1001" name="Custom Banner" status="Active" variants={12} options={4} pricing="Configured" date="Today, 10:30 AM" img="https://images.unsplash.com/photo-1542382156909-9ae37b3f5b99?auto=format&fit=crop&w=40&h=40&q=80" />
-                        <TableRow id="#1002" name="Polo Shirt" status="Active" variants={8} options={3} pricing="Configured" date="Yesterday, 4:20 PM" img="https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=40&h=40&q=80" />
-                        <TableRow id="#1003" name="Business Card" status="Draft" variants={0} options={6} pricing="Not Set" date="Aug 14, 2025" img="https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&w=40&h=40&q=80" />
-                        <TableRow id="#1004" name="Hoodie" status="Active" variants={6} options={4} pricing="Configured" date="Aug 13, 2025" img="https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=40&h=40&q=80" />
-                        <TableRow id="#1005" name="Mug" status="Active" variants={4} options={2} pricing="Configured" date="Aug 12, 2025" img="https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=40&h=40&q=80" />
+                        {products.map(p => (
+                            <TableRow
+                                key={p._id || p.id}
+                                id={`#${String(p.shopifyId || p._id || "").slice(-6)}`}
+                                name={p.title}
+                                status={p.status === 'active' ? "Active" : "Draft"}
+                                variants={p.options?.length || 0}
+                                options={0}
+                                pricing="Not Set"
+                                date={new Date(p.updatedAt || p.createdAt).toLocaleDateString()}
+                                img={p.featuredImage || "https://images.unsplash.com/photo-1542382156909-9ae37b3f5b99?auto=format&fit=crop&w=40&h=40&q=80"}
+                            />
+                        ))}
                     </tbody>
                 </table>
                 <div className="p-4 border-t border-slate-200 flex items-center justify-between text-sm text-slate-500">
-                    <span>Showing 1 to 5 of 378 products</span>
+                    <span>Showing 1 to {products.length} of {products.length} products</span>
                     <div className="flex gap-1">
                         <button className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-100">&lt;</button>
                         <button className="w-8 h-8 flex items-center justify-center rounded bg-[#6C5CE7] text-white font-bold">1</button>

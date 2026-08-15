@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, GripVertical, Settings2, Trash2, Plus, ChevronDown } from "lucide-react";
 
 type Choice = { id: string; label: string; priceModifier: number };
@@ -14,8 +14,25 @@ type ProductOption = {
     choices: Choice[];
 };
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
+
 export function ProductOptionsBuilder() {
     const [activeTab, setActiveTab] = useState("Options");
+    const [products, setProducts] = useState<any[]>([]);
+    const [selectedGlobalProduct, setSelectedGlobalProduct] = useState<any>(null);
+
+    useEffect(() => {
+        fetch(`${API_URL}/products`)
+            .then(res => res.json())
+            .then(data => {
+                const prodArray = Array.isArray(data) ? data : (data.data?.products || data.data || []);
+                setProducts(prodArray);
+                if (prodArray.length > 0) {
+                    setSelectedGlobalProduct(prodArray[0]);
+                }
+            })
+            .catch(err => console.error("Failed to fetch products", err));
+    }, []);
 
     // Core functional state matching the image structure exactly
     const [options, setOptions] = useState<ProductOption[]>([
@@ -110,7 +127,7 @@ export function ProductOptionsBuilder() {
     };
 
     // Derived calculated price
-    const basePrice = 22.00;
+    const basePrice = selectedGlobalProduct?.price ? parseFloat(selectedGlobalProduct.price) : 22.00;
     let extraPrice = 0;
     options.forEach(opt => {
         const selectedValue = previewSelections[opt.id];
@@ -142,10 +159,25 @@ export function ProductOptionsBuilder() {
                     <button className="text-slate-500 hover:text-slate-800 transition">
                         <ArrowLeft className="w-5 h-5" />
                     </button>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
-                        Polo Shirt
+                    <div className="flex items-center gap-3">
+                        <div className="relative">
+                            <select
+                                className="appearance-none bg-white border border-slate-200 text-2xl font-bold text-slate-900 tracking-tight pr-8 pl-3 py-1 rounded-lg focus:outline-none focus:border-[#6C5CE7]"
+                                value={selectedGlobalProduct?._id || ""}
+                                onChange={(e) => {
+                                    const p = products.find(prod => prod._id === e.target.value || prod.id === e.target.value);
+                                    if (p) setSelectedGlobalProduct(p);
+                                }}
+                            >
+                                {products.length === 0 && <option value="">Loading Products...</option>}
+                                {products.map(p => (
+                                    <option key={p._id || p.id} value={p._id || p.id}>{p.title}</option>
+                                ))}
+                            </select>
+                            <ChevronDown className="w-5 h-5 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        </div>
                         <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-md">Active</span>
-                    </h1>
+                    </div>
                 </div>
                 <div className="flex items-center gap-3">
                     <button className="bg-white border border-slate-200 text-slate-600 font-bold px-4 py-2 rounded-lg text-sm shadow-sm hover:bg-slate-50 transition">
