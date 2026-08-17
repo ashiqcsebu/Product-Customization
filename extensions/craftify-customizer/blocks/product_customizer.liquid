@@ -1,0 +1,32 @@
+{% if product.metafields.craftify.customizer_config %}
+  <script>
+    // Make the config available to our JavaScript
+    window.CraftifyConfig = window.CraftifyConfig || {};
+    window.CraftifyConfig["{{ product.id }}"] = {{ product.metafields.craftify.customizer_config.value | json }};
+    window.ShopifyCurrency = "{{ cart.currency.symbol }}";
+  </script>
+
+  {{ 'craftify.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'craftify.js' | asset_url }}" defer></script>
+
+  <div id="craftify-root-{{ product.id }}" class="craftify-container" data-product-id="{{ product.id }}" data-base-price="{{ product.price | money_without_currency }}">
+      <!-- The vanilla JS will mount the UI here -->
+      <div class="craftify-loading">Loading Customization Options...</div>
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Craftify Customizer",
+  "target": "section",
+  "templates": ["product"],
+  "settings": [
+    {
+      "type": "color",
+      "id": "primary_color",
+      "label": "Primary Buttons Color",
+      "default": "#1b5dfc"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,137 @@
+/* Craftify CSS - Premium UI */
+.craftify-container {
+    margin: 1.5rem 0;
+    font-family: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.craftify-loading {
+    padding: 2rem;
+    text-align: center;
+    color: #64748b;
+    font-weight: 500;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Option Groups */
+.craftify-option-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.craftify-option-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Swatches */
+.craftify-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.craftify-swatch-item {
+    position: relative;
+    cursor: pointer;
+}
+
+.craftify-swatch-item input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.craftify-swatch-box {
+    padding: 0.5rem 1rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569;
+    background: white;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.craftify-swatch-item input:checked+.craftify-swatch-box {
+    border-color: var(--craftify-primary, #1b5dfc);
+    color: var(--craftify-primary, #1b5dfc);
+    background: #f8fafc;
+    box-shadow: 0 4px 6px -1px rgba(27, 93, 252, 0.1);
+}
+
+.craftify-option-price {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* Dropdowns */
+.craftify-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #334155;
+    background: white url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%2F%3E%3C%2Fsvg%3E') no-repeat right 0.75rem center;
+    background-size: 1.2rem;
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+.craftify-select:focus {
+    outline: none;
+    border-color: var(--craftify-primary, #1b5dfc);
+}
+
+/* Dynamic Price Box */
+.craftify-price-summary {
+    margin-top: 1rem;
+    padding: 1.25rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.craftify-price-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+.craftify-price-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px border #cbd5e1;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+}

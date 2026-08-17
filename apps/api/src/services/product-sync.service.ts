@@ -10,10 +10,7 @@ export class ProductSyncService {
     public static async syncAllProducts(storeId: mongoose.Types.ObjectId) {
         try {
             console.log("[ProductSync] Starting Shopify Product Sync...");
-            const shopifyData = await ShopifyService.fetchProducts();
-
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const products = shopifyData.products?.edges.map((e: any) => e.node) || [];
+            const products = await ShopifyService.fetchProducts();
             let syncedCount = 0;
 
             for (const shopifyProduct of products) {
@@ -95,8 +92,9 @@ export class ProductSyncService {
 
             console.log(`[ProductSync] Successfully synced ${syncedCount} products and their variants!`);
             return { success: true, count: syncedCount };
-        } catch (error) {
+        } catch (error: any) {
             console.error("[ProductSync] Sync failed:", error);
+            import("fs").then(fs => fs.writeFileSync("sync_error.log", String(error.message || error) + "\n" + String(error.stack)));
             throw error;
         }
     }

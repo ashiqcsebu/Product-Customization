@@ -1,0 +1,20 @@
+src/routes/config.routes.ts(2,10): error TS2305: Module '"@shabu/database"' has no exported member 'CustomizerConfig'.
+src/routes/design.routes.ts(2,49): error TS2305: Module '"@shabu/database"' has no exported member 'CustomizerConfig'.
+src/services/pricing.service.ts(43,18): error TS2551: Property 'conditionGroups' does not exist on type 'IPricingRule'. Did you mean 'conditions'?
+src/services/pricing.service.ts(43,42): error TS2551: Property 'conditionGroups' does not exist on type 'IPricingRule'. Did you mean 'conditions'?
+src/services/pricing.service.ts(44,63): error TS2551: Property 'conditionGroups' does not exist on type 'IPricingRule'. Did you mean 'conditions'?
+src/services/pricing.service.ts(51,34): error TS2339: Property 'limits' does not exist on type 'IPricingRule'.
+src/services/pricing.service.ts(58,33): error TS2339: Property 'components' does not exist on type 'IPricingRule'.
+src/services/pricing.service.ts(65,27): error TS2339: Property 'formula' does not exist on type 'IPricingRule'.
+src/services/pricing.service.ts(72,18): error TS2339: Property 'formula' does not exist on type 'IPricingRule'.
+src/services/pricing.service.ts(73,50): error TS2339: Property 'formula' does not exist on type 'IPricingRule'.
+src/services/pricing.service.ts(79,18): error TS2339: Property 'quantityPricing' does not exist on type 'IPricingRule'.
+src/services/pricing.service.ts(79,42): error TS2339: Property 'quantityPricing' does not exist on type 'IPricingRule'.
+src/services/pricing.service.ts(79,74): error TS2339: Property 'quantityPricing' does not exist on type 'IPricingRule'.
+src/services/pricing.service.ts(80,53): error TS2339: Property 'quantityPricing' does not exist on type 'IPricingRule'.
+src/services/pricing.service.ts(93,18): error TS2339: Property 'limits' does not exist on type 'IPricingRule'.
+src/services/pricing.service.ts(93,33): error TS2339: Property 'limits' does not exist on type 'IPricingRule'.
+src/services/pricing.service.ts(93,70): error TS2339: Property 'limits' does not exist on type 'IPricingRule'.
+src/services/pricing.service.ts(94,31): error TS2339: Property 'limits' does not exist on type 'IPricingRule'.
+src/services/pricing.service.ts(98,58): error TS2339: Property 'roundingRule' does not exist on type 'IPricingRule'.
+src/services/pricing.service.ts(105,28): error TS2339: Property 'currency' does not exist on type 'IPricingRule'.

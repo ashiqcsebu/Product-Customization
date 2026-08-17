@@ -6,11 +6,16 @@ import {
 } from 'lucide-react';
 
 import { ProductsPage } from './pages/ProductsPage';
+import { ProductEditPage } from './pages/ProductEditPage';
 import { OrdersPage } from './pages/OrdersPage';
 import { PricingRulesPage } from './pages/PricingRulesPage';
 import { PricingRuleBuilder } from './pages/PricingRuleBuilder';
 import { ProductOptionsBuilder } from './pages/ProductOptionsBuilder';
 import { Dashboard } from './pages/Dashboard';
+import { TemplatesPage } from './pages/TemplatesPage';
+import { ImportExportPage } from './pages/ImportExportPage';
+import { ActivityPage } from './pages/ActivityPage';
+import SettingsPage from './pages/SettingsPage';
 
 function AppLayout({ children }: { children: React.ReactNode }) {
     const location = useLocation();
@@ -51,11 +56,46 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                 {/* Links */}
                 <nav className="px-4 flex-1 overflow-y-auto custom-scrollbar">
                     <NavLink to="/" icon={<LayoutDashboard className="w-[18px] h-[18px]" />} label="Dashboard" />
-                    <NavLink to="/products" icon={<Package className="w-[18px] h-[18px]" />} label="Products" />
-                    <NavLink to="/options" icon={<Box className="w-[18px] h-[18px]" />} label="Options" />
-                    <NavLink to="/templates" icon={<FileType className="w-[18px] h-[18px]" />} label="Templates" />
-                    <NavLink to="/pricing" icon={<Calculator className="w-[18px] h-[18px]" />} label="Pricing" />
-                    <NavLink to="/conditional-rules" icon={<Sliders className="w-[18px] h-[18px]" />} label="Conditional Rules" />
+
+                    {/* Expandable Products Menu */}
+                    <div className="mb-1">
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault(); // Prevent accidental navigation if there's any wrapper
+                                const el = document.getElementById('products-submenu');
+                                if (el) {
+                                    el.classList.toggle('hidden');
+                                }
+                            }}
+                            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-sm transition-all duration-200 ${(location.pathname.startsWith('/products') || location.pathname.startsWith('/options') || location.pathname.startsWith('/templates') || location.pathname.startsWith('/pricing') || location.pathname.startsWith('/conditional-rules')) ? 'text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <Package className="w-[18px] h-[18px]" />
+                                <span>Products</span>
+                            </div>
+                            <ChevronDown className="w-4 h-4 text-slate-500" />
+                        </button>
+
+                        <div id="products-submenu" className={`mt-1 mb-2 ${!(location.pathname.startsWith('/products') || location.pathname.startsWith('/options') || location.pathname.startsWith('/templates') || location.pathname.startsWith('/pricing') || location.pathname.startsWith('/conditional-rules')) ? 'hidden' : ''}`}>
+                            <div className="pl-[2.75rem] pr-2 space-y-1 py-1">
+                                <Link to="/products" className={`block px-3 py-2 rounded-lg text-sm font-bold transition-all ${isActive('/products') ? 'text-indigo-400 bg-indigo-500/10' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}>
+                                    All Products
+                                </Link>
+                                <Link to="/options" className={`block px-3 py-2 rounded-lg text-sm font-bold transition-all ${isActive('/options') ? 'text-indigo-400 bg-indigo-500/10' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}>
+                                    Options
+                                </Link>
+                                <Link to="/templates" className={`block px-3 py-2 rounded-lg text-sm font-bold transition-all ${isActive('/templates') ? 'text-indigo-400 bg-indigo-500/10' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}>
+                                    Templates
+                                </Link>
+                                <Link to="/pricing" className={`block px-3 py-2 rounded-lg text-sm font-bold transition-all ${isActive('/pricing') ? 'text-indigo-400 bg-indigo-500/10' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}>
+                                    Pricing
+                                </Link>
+                                <Link to="/conditional-rules" className={`block px-3 py-2 rounded-lg text-sm font-bold transition-all ${isActive('/conditional-rules') ? 'text-indigo-400 bg-indigo-500/10' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}>
+                                    Conditional Rules
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
 
                     <div className="my-6 border-t border-[#26283C]/70"></div>
 
@@ -111,10 +151,18 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/products" element={<ProductsPage />} />
+                    <Route path="/products/:id" element={<ProductEditPage />} />
                     <Route path="/options" element={<ProductOptionsBuilder />} />
+                    <Route path="/templates" element={<TemplatesPage />} />
                     <Route path="/pricing" element={<PricingRulesPage />} />
+                    <Route path="/conditional-rules" element={<PricingRulesPage />} />
                     <Route path="/pricing/new" element={<PricingRuleBuilder />} />
                     <Route path="/orders" element={<OrdersPage />} />
+                    <Route path="/sync" element={<ProductsPage />} />
+                    <Route path="/import-export" element={<ImportExportPage />} />
+                    <Route path="/activity" element={<ActivityPage />} />
+                    <Route path="/issues" element={<ActivityPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
                 </Routes>
             </AppLayout>
         </BrowserRouter>

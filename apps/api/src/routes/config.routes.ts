@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { CustomizerConfig, Store } from "@shabu/database";
+import { ProductCustomizerConfig as CustomizerConfig, Store } from "@shabu/database";
 
 const router = Router();
 

@@ -4,7 +4,7 @@ import { ArrowLeft, GripVertical, Settings2, Trash2, Plus, ChevronDown } from "l
 type Choice = { id: string; label: string; priceModifier: number };
 type ProductOption = {
     id: string;
-    type: "Color Swatch" | "Dropdown" | "Button" | "Radio" | "File Upload";
+    type: "Color Swatch" | "Dropdown" | "Button" | "Radio" | "File Upload" | "Text Input" | "Dimensions";
     name: string;
     label: string;
     required: boolean;
@@ -142,7 +142,9 @@ export function ProductOptionsBuilder() {
         "Dropdown": "bg-amber-500",
         "Button": "bg-cyan-500",
         "Radio": "bg-red-500",
-        "File Upload": "bg-emerald-500"
+        "File Upload": "bg-emerald-500",
+        "Text Input": "bg-slate-500",
+        "Dimensions": "bg-rose-500"
     };
 
     const handleSave = () => {
@@ -160,9 +162,9 @@ export function ProductOptionsBuilder() {
                         <ArrowLeft className="w-5 h-5" />
                     </button>
                     <div className="flex items-center gap-3">
-                        <div className="relative">
+                        <div className="relative border border-slate-200 rounded-lg bg-white p-1 pr-6 hover:border-[#6C5CE7] transition-all">
                             <select
-                                className="appearance-none bg-white border border-slate-200 text-2xl font-bold text-slate-900 tracking-tight pr-8 pl-3 py-1 rounded-lg focus:outline-none focus:border-[#6C5CE7]"
+                                className="appearance-none bg-transparent text-xl font-black text-slate-900 tracking-tight px-3 py-1 cursor-pointer outline-none w-full max-w-[350px]"
                                 value={selectedGlobalProduct?._id || ""}
                                 onChange={(e) => {
                                     const p = products.find(prod => prod._id === e.target.value || prod.id === e.target.value);
@@ -174,9 +176,12 @@ export function ProductOptionsBuilder() {
                                     <option key={p._id || p.id} value={p._id || p.id}>{p.title}</option>
                                 ))}
                             </select>
-                            <ChevronDown className="w-5 h-5 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <ChevronDown className="w-5 h-5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                         </div>
-                        <span className="bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-md">Active</span>
+                        <label className="flex items-center gap-2 cursor-pointer ml-4">
+                            <input type="checkbox" className="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500 border-slate-300" defaultChecked />
+                            <span className="text-sm font-bold text-slate-700">Enable Customization</span>
+                        </label>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -191,7 +196,7 @@ export function ProductOptionsBuilder() {
 
             {/* Tabs */}
             <div className="flex gap-8 border-b border-slate-200 mb-8 overflow-x-auto custom-scrollbar">
-                {["Overview", "Options", "Option Values", "Variants", "Pricing", "Conditions", "Display", "Preview"].map(tab => (
+                {["Overview", "Options", "Option Values", "Pricing", "Conditions", "Preview"].map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
@@ -226,7 +231,6 @@ export function ProductOptionsBuilder() {
                                         <th className="p-4">Type</th>
                                         <th className="p-4 text-center">Values</th>
                                         <th className="p-4 text-center">Required</th>
-                                        <th className="p-4 text-center">Status</th>
                                         <th className="p-4 text-center">Actions</th>
                                     </tr>
                                 </thead>
@@ -241,13 +245,8 @@ export function ProductOptionsBuilder() {
                                                 {opt.name}
                                             </td>
                                             <td className="p-4 text-slate-600 text-[13px]">{opt.type}</td>
-                                            <td className="p-4 text-center font-bold text-slate-600">{opt.choices.length || '-'}</td>
+                                            <td className="p-4 text-center font-bold text-slate-600">{opt.choices?.length || '-'}</td>
                                             <td className="p-4 text-center font-medium text-slate-800">{opt.required ? 'Yes' : 'No'}</td>
-                                            <td className="p-4 text-center">
-                                                <div className="w-10 h-5 bg-[#6C5CE7] rounded-full mx-auto relative">
-                                                    <div className="w-3.5 h-3.5 bg-white rounded-full absolute right-1 top-0.5"></div>
-                                                </div>
-                                            </td>
                                             <td className="p-4 text-center text-slate-400">
                                                 <div className="flex items-center justify-center gap-3">
                                                     <button className="hover:text-slate-600 transition"><Settings2 className="w-4 h-4" /></button>
@@ -298,6 +297,8 @@ export function ProductOptionsBuilder() {
                                                 <option>Button</option>
                                                 <option>Radio</option>
                                                 <option>File Upload</option>
+                                                <option>Text Input</option>
+                                                <option>Dimensions</option>
                                             </select>
                                             <ChevronDown className="w-4 h-4 text-slate-400 absolute right-4 top-4 pointer-events-none" />
                                         </div>
@@ -388,7 +389,11 @@ export function ProductOptionsBuilder() {
                                                 )}
 
                                                 {opt.type === "File Upload" && (
-                                                    <input type="file" className="text-sm" />
+                                                    <div className="border border-dashed border-slate-300 rounded-lg p-6 text-center hover:bg-slate-50 transition cursor-pointer">
+                                                        <Plus className="w-6 h-6 text-slate-400 mx-auto mb-2" />
+                                                        <span className="text-sm font-medium text-slate-600 block">Click to upload artwork</span>
+                                                        <span className="text-xs text-slate-400 mt-1 block">PNG, JPG up to 10MB</span>
+                                                    </div>
                                                 )}
 
                                                 {opt.type === "Radio" && (
@@ -400,9 +405,31 @@ export function ProductOptionsBuilder() {
                                                                     name={`opt_${opt.id}`}
                                                                     checked={previewSelections[opt.id] === c.id}
                                                                     onChange={() => setPreviewSelections({ ...previewSelections, [opt.id]: c.id })}
-                                                                /> {c.label}
+                                                                /> {c.label} {c.priceModifier ? <span className="text-slate-400 ml-1">(+${c.priceModifier})</span> : ''}
                                                             </label>
                                                         ))}
+                                                    </div>
+                                                )}
+
+                                                {opt.type === "Text Input" && (
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Enter text..."
+                                                        className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500"
+                                                    />
+                                                )}
+
+                                                {opt.type === "Dimensions" && (
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="relative flex-1">
+                                                            <input type="number" placeholder="Width" className="w-full border border-slate-300 rounded-lg pl-3 pr-8 py-2 text-sm outline-none focus:border-indigo-500" />
+                                                            <span className="absolute right-3 top-2 text-xs text-slate-400 font-bold">in</span>
+                                                        </div>
+                                                        <span className="text-slate-400">×</span>
+                                                        <div className="relative flex-1">
+                                                            <input type="number" placeholder="Height" className="w-full border border-slate-300 rounded-lg pl-3 pr-8 py-2 text-sm outline-none focus:border-indigo-500" />
+                                                            <span className="absolute right-3 top-2 text-xs text-slate-400 font-bold">in</span>
+                                                        </div>
                                                     </div>
                                                 )}
                                             </div>

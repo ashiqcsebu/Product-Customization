@@ -93,7 +93,7 @@ export default function Home() {
               </div>
               <CardContent className="p-5">
                 <div className="text-xs text-slate-500 mb-1 font-medium tracking-wide uppercase">
-                  {product.vendor || "Shabu Store"}
+                  {product.vendor || "Craftify Store"}
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 leading-tight mb-2 line-clamp-1">
                   {product.title}

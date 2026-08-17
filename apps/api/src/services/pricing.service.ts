@@ -35,7 +35,7 @@ export class PricingService {
      * Main entry point to calculate price based on user inputs.
      */
     public executeRule(
-        rule: IPricingRule,
+        rule: any,
         variables: PricingVariables,
         options: PricingOptions
     ): PricingResult {
@@ -102,7 +102,7 @@ export class PricingService {
             discountValue,
             finalPrice,
             breakdown,
-            currency: rule.currency || 'USD'
+            currency: (rule as any).currency || 'USD'
         };
     }
 

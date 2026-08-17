@@ -112,6 +112,47 @@ export function PricingRuleBuilder() {
                             </div>
                         </div>
 
+                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">Application Conditions</h2>
+                                <button className="text-indigo-600 font-bold text-sm flex items-center gap-1 hover:text-indigo-700">
+                                    <Plus className="w-4 h-4" /> Add Rule
+                                </button>
+                            </div>
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2 p-2 border border-slate-100 bg-slate-50 rounded-xl">
+                                    <select className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 outline-none w-1/3">
+                                        <option>Product Type</option>
+                                        <option>Product Tag</option>
+                                        <option>Specific Product</option>
+                                    </select>
+                                    <select className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 outline-none w-1/4">
+                                        <option>Equals</option>
+                                        <option>Contains</option>
+                                        <option>Not Equals</option>
+                                    </select>
+                                    <input placeholder="e.g. Canvas" className="flex-1 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-700 outline-none placeholder:text-slate-400" />
+                                    <button className="p-2 text-slate-400 hover:text-red-500 rounded-md"><Trash2 className="w-4 h-4" /></button>
+                                </div>
+                                <div className="text-xs font-bold text-slate-400 uppercase tracking-widest text-center my-1 relative">
+                                    <span className="bg-white px-2 relative z-10">AND</span>
+                                    <div className="absolute left-0 right-0 top-1/2 h-px bg-slate-100 -z-0"></div>
+                                </div>
+                                <div className="flex items-center gap-2 p-2 border border-slate-100 bg-slate-50 rounded-xl">
+                                    <select className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 outline-none w-1/3" defaultValue="Specific Option">
+                                        <option>Product Type</option>
+                                        <option>Specific Option</option>
+                                    </select>
+                                    <select className="bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-semibold text-slate-700 outline-none w-1/4" defaultValue="Is Selected">
+                                        <option>Is Selected</option>
+                                        <option>Equals</option>
+                                    </select>
+                                    <input placeholder="e.g. Dimensions" className="flex-1 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-sm font-medium text-slate-700 outline-none placeholder:text-slate-400" defaultValue="Dimensions" />
+                                    <button className="p-2 text-slate-400 hover:text-red-500 rounded-md"><Trash2 className="w-4 h-4" /></button>
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="bg-[#0A071B] rounded-2xl shadow-lg border border-slate-800 p-6 relative overflow-hidden">
                             <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-4">Mathematical Formula</h2>
                             <textarea

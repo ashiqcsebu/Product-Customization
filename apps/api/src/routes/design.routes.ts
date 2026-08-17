@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Design, DesignVersion, Product, Store, CustomizerConfig, Asset } from "@shabu/database";
+import { Design, DesignVersion, Product, Store, ProductCustomizerConfig as CustomizerConfig, Asset } from "@shabu/database";
 import mongoose from "mongoose";
 
 const router = Router();

@@ -1,0 +1,22 @@
+src/App.tsx(4,54): error TS6133: 'Calculator' is declared but its value is never read.
+src/App.tsx(5,5): error TS6133: 'Box' is declared but its value is never read.
+src/App.tsx(5,10): error TS6133: 'FileType' is declared but its value is never read.
+src/App.tsx(5,56): error TS6133: 'Sliders' is declared but its value is never read.
+src/pages/ActivityPage.tsx(1,27): error TS6133: 'Box' is declared but its value is never read.
+src/pages/PricingRulesPage.tsx(3,36): error TS6133: 'MoreVertical' is declared but its value is never read.
+src/pages/ProductEditPage.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/ProductEditPage.tsx(84,19): error TS6133: 'data' is declared but its value is never read.
+src/pages/ProductEditPage.tsx(216,38): error TS2304: Cannot find name 'Check'.
+src/pages/ProductEditPage.tsx(219,38): error TS2304: Cannot find name 'Check'.
+src/pages/ProductEditPage.tsx(260,58): error TS2304: Cannot find name 'ChevronDown'.
+src/pages/ProductEditPage.tsx(326,50): error TS2304: Cannot find name 'ChevronDown'.
+src/pages/ProductEditPage.tsx(366,168): error TS2304: Cannot find name 'Check'.
+src/pages/ProductEditPage.tsx(453,38): error TS2304: Cannot find name 'ChevronDown'.
+src/pages/ProductEditPage.tsx(475,71): error TS6133: 'i' is declared but its value is never read.
+src/pages/ProductsPage.tsx(483,10): error TS6133: 'FilterDropdown' is declared but its value is never read.
+src/pages/SettingsPage.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/pages/TemplatesPage.tsx(1,10): error TS6133: 'Filter' is declared but its value is never read.
+src/pages/TemplatesPage.tsx(1,18): error TS6133: 'LayoutTemplate' is declared but its value is never read.
+src/pages/TemplatesPage.tsx(1,62): error TS6133: 'Copy' is declared but its value is never read.
+src/pages/TemplatesPage.tsx(1,68): error TS6133: 'Trash2' is declared but its value is never read.
+src/pages/TemplatesPage.tsx(2,1): error TS6133: 'Link' is declared but its value is never read.

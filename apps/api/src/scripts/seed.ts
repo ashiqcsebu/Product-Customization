@@ -26,7 +26,7 @@ async function seed() {
             handle: "classic-t-shirt",
             title: "Premium Classic T-Shirt",
             description: "A comfortable, premium placeholder t-shirt for testing the customizer.",
-            vendor: "Shabu Apparel",
+            vendor: "Craftify Apparel",
             productType: "Apparel",
             status: "active",
             options: [
