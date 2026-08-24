@@ -1,370 +1,290 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, ChevronRight, Settings, Sliders, DollarSign, Waypoints, Target, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Move, Copy, Trash2, Edit2, Sparkles, Check, Info, Settings, Code, LayoutList, CheckCircle2, Circle } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-
-const STEPS = [
-    { id: 1, title: 'Template Info', icon: <Settings className="w-4 h-4" /> },
-    { id: 2, title: 'Parameters', icon: <Sliders className="w-4 h-4" /> },
-    { id: 3, title: 'Option Pricing', icon: <DollarSign className="w-4 h-4" /> },
-    { id: 4, title: 'Logic Rules', icon: <Waypoints className="w-4 h-4" /> },
-    { id: 5, title: 'Formula', icon: <Target className="w-4 h-4" /> },
-];
 
 export function PricingRuleBuilder() {
     const navigate = useNavigate();
     const { id } = useParams();
     const isEditing = Boolean(id);
 
-    const [currentStep, setCurrentStep] = useState(1);
-    const [isSaving, setIsSaving] = useState(false);
+    // Mock Data based on the image
+    const [name, setName] = useState("Frosted Lettering");
+    const [elements, setElements] = useState([
+        { id: 1, type: 'number', label: 'Custom Width', icon: '123' },
+        { id: 2, type: 'number', label: 'Custom Height', icon: '123' },
+        { id: 3, type: 'select', label: 'Coating', icon: 'dropdown' },
+        { id: 4, type: 'select', label: 'Shape', icon: 'dropdown' },
+        { id: 5, type: 'radio', label: 'Printed Sides', icon: 'radio' },
+        { id: 6, type: 'checkbox', label: 'Drilled Holes', icon: 'checkbox' },
+        { id: 7, type: 'select', label: 'Standoffs', icon: 'dropdown' },
+        { id: 8, type: 'select', label: 'Accessories', icon: 'dropdown' },
+        { id: 9, type: 'number', label: 'Quantity', icon: '123' },
+    ]);
 
-    // Core state
-    const [templateData, setTemplateData] = useState<any>({
-        name: '',
-        description: '',
-        industry: 'Signage',
-        productType: 'Banner',
-        status: 'active',
-        minimumPrice: 0,
-        parameters: [],
-        rules: [],
-        formula: ''
-    });
+    const renderElementIcon = (icon: string) => {
+        if (icon === '123') return <div className="text-[10px] font-black border border-slate-300 rounded px-1 text-slate-500 tracking-tighter">123</div>;
+        if (icon === 'dropdown') return <div className="w-4 h-3 border-2 border-slate-300 rounded-[3px] flex items-center justify-center after:content-[''] after:w-1.5 after:h-1.5 after:bg-slate-300 after:rounded-sm"></div>;
+        if (icon === 'radio') return <div className="w-3.5 h-3.5 border-2 border-slate-400 rounded-full flex items-center justify-center before:content-[''] before:w-1.5 before:h-1.5 before:bg-slate-400 before:rounded-full"></div>;
+        if (icon === 'checkbox') return <div className="w-3.5 h-3.5 border-2 border-slate-400 rounded-sm flex items-center justify-center"><Check className="w-2.5 h-2.5 text-slate-400" /></div>;
+        return null;
+    }
 
-    const addParameter = (type: string) => {
-        const newParam = {
-            id: `param_${Date.now()}`,
-            label: 'New Parameter',
-            type,
-            required: false,
-            options: type === 'dropdown' ? [{ label: 'Option 1', value: 'opt1' }] : []
-        };
-        setTemplateData({ ...templateData, parameters: [...templateData.parameters, newParam] });
-    };
-
-    const removeParameter = (id: string) => {
-        setTemplateData({ ...templateData, parameters: templateData.parameters.filter((p: any) => p.id !== id) });
-    };
-
-    useEffect(() => {
-        if (isEditing) {
-            fetch(`/api/v1/pricing-templates/${id}`)
-                .then(r => r.json())
-                .then(data => setTemplateData(data))
-                .catch(() => navigate('/pricing'));
-        }
-    }, [id]);
-
-    const handleSave = async () => {
-        setIsSaving(true);
-        try {
-            const url = isEditing ? `/api/v1/pricing-templates/${id}` : '/api/v1/pricing-templates';
-            const method = isEditing ? 'PUT' : 'POST';
-
-            const res = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(templateData)
-            });
-
-            if (res.ok) {
-                navigate('/pricing');
-            }
-        } catch (error) {
-            console.error("Save failed");
-        } finally {
-            setIsSaving(false);
-        }
-    };
-
-    // Sub-components for steps would go here.
     return (
-        <div className="flex flex-col h-screen bg-[#F8FAFC]">
-            {/* Topbar */}
-            <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0">
-                <div className="flex items-center gap-4">
-                    <button onClick={() => navigate('/pricing')} className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors">
-                        <ArrowLeft className="w-4 h-4" />
-                    </button>
-                    <div>
-                        <h1 className="text-sm font-black text-slate-800">{isEditing ? 'Edit Template' : 'Create Pricing Template'}</h1>
-                        <p className="text-[11px] font-bold text-slate-400">Step {currentStep} of {STEPS.length}</p>
-                    </div>
-                </div>
+        <div className="min-h-screen bg-[#F4F6F8] pb-20">
+            {/* Header */}
+            <div className="flex items-center gap-3 px-8 py-5">
+                <button onClick={() => navigate('/pricing')} className="text-slate-600 hover:text-slate-900 transition-colors">
+                    <ArrowLeft className="w-5 h-5" />
+                </button>
+                <h1 className="text-xl font-bold text-slate-800 flex items-center gap-3">
+                    Calculator
+                    <span className="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-0.5 rounded-full font-semibold border border-emerald-200">Live</span>
+                </h1>
+            </div>
 
-                <div className="flex items-center gap-3">
-                    <button className="h-9 px-4 rounded-xl text-slate-500 text-sm font-bold hover:bg-slate-100 transition-colors">
-                        Cancel
-                    </button>
-                    <button
-                        onClick={handleSave}
-                        disabled={isSaving}
-                        className="h-9 px-5 rounded-xl bg-[#6C5CE7] hover:bg-[#5a4bcf] text-white text-sm font-bold flex items-center gap-2 shadow-sm transition-colors opacity-90 disabled:opacity-50"
-                    >
-                        <Save className="w-4 h-4" />
-                        {isSaving ? 'Saving...' : 'Save Template'}
-                    </button>
-                </div>
-            </header>
+            <div className="max-w-[1400px] mx-auto px-8 flex items-start gap-6">
 
-            {/* Stepper & Workspace */}
-            <div className="flex flex-1 overflow-hidden">
-                {/* Horizontal Stepper (Top Area of Workspace) */}
-                <div className="flex-1 flex flex-col overflow-y-auto">
-                    <div className="bg-white border-b border-slate-200 px-8 py-6 shrink-0">
-                        <div className="max-w-4xl mx-auto">
-                            <div className="flex items-center justify-between relative">
-                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[2px] bg-slate-100 -z-10" />
-                                {STEPS.map((step) => {
-                                    const isActive = currentStep === step.id;
-                                    const isPassed = currentStep > step.id;
-                                    return (
-                                        <button
-                                            key={step.id}
-                                            onClick={() => setCurrentStep(step.id)}
-                                            className={`flex flex-col items-center gap-2 bg-white px-2 cursor-pointer group`}
-                                        >
-                                            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border-2 transition-all duration-300 ${isActive ? 'border-[#6C5CE7] bg-indigo-50 text-[#6C5CE7] shadow-sm' : isPassed ? 'border-[#00b894] bg-[#00b894] text-white' : 'border-slate-100 bg-slate-50 text-slate-400 group-hover:border-slate-200'}`}>
-                                                {step.icon}
-                                            </div>
-                                            <span className={`text-[11px] font-black uppercase tracking-wider ${isActive ? 'text-[#6C5CE7]' : isPassed ? 'text-[#00b894]' : 'text-slate-400'}`}>
-                                                {step.title}
-                                            </span>
-                                        </button>
-                                    )
-                                })}
-                            </div>
+                {/* Left Column */}
+                <div className="flex-1 space-y-6">
+
+                    {/* Calculator Name Card */}
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                        <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">Calculator Name</label>
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-slate-400 transition-all"
+                        />
+                        <div className="flex items-center gap-1.5 mt-3 text-[12px]">
+                            <a href="#" className="text-blue-600 hover:underline">View version history</a>
+                            <span className="text-slate-400">&middot;</span>
+                            <span className="text-slate-500">Compare versions</span>
+                            <Info className="w-3.5 h-3.5 text-slate-900 cursor-pointer" />
                         </div>
                     </div>
 
-                    {/* Step Content Area */}
-                    <div className="flex-1 p-8">
-                        <div className="max-w-4xl mx-auto">
-
-                            {/* Step 1: Info */}
-                            {currentStep === 1 && (
-                                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                    <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
-                                        <h2 className="text-lg font-black text-slate-800 mb-6 flex items-center gap-2">
-                                            <Settings className="w-5 h-5 text-indigo-500" />
-                                            General Information
-                                        </h2>
-
-                                        <div className="space-y-5">
-                                            <div>
-                                                <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-2">Template Name *</label>
-                                                <input
-                                                    type="text"
-                                                    value={templateData.name}
-                                                    onChange={e => setTemplateData({ ...templateData, name: e.target.value })}
-                                                    placeholder="e.g. Premium Banner Calculator"
-                                                    className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-semibold focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all"
-                                                />
-                                            </div>
-
-                                            <div className="grid grid-cols-2 gap-5">
-                                                <div>
-                                                    <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-2">Industry</label>
-                                                    <select
-                                                        value={templateData.industry}
-                                                        onChange={e => setTemplateData({ ...templateData, industry: e.target.value })}
-                                                        className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-semibold focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all"
-                                                    >
-                                                        <option value="Signage">Signage & Print</option>
-                                                        <option value="Apparel">Apparel & Textiles</option>
-                                                        <option value="Hardware">Hardware & Materials</option>
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-2">Product Type</label>
-                                                    <input
-                                                        type="text"
-                                                        value={templateData.productType}
-                                                        onChange={e => setTemplateData({ ...templateData, productType: e.target.value })}
-                                                        placeholder="e.g. Vinyl Banner"
-                                                        className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-semibold focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all"
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-2">Internal Description</label>
-                                                <textarea
-                                                    value={templateData.description}
-                                                    onChange={e => setTemplateData({ ...templateData, description: e.target.value })}
-                                                    placeholder="Briefly describe what this pricing template is for..."
-                                                    className="w-full h-24 bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm font-semibold focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all resize-none"
-                                                />
-                                            </div>
-
-                                            <div>
-                                                <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-2">Minimum Global Price ($)</label>
-                                                <input
-                                                    type="number"
-                                                    value={templateData.minimumPrice}
-                                                    onChange={e => setTemplateData({ ...templateData, minimumPrice: Number(e.target.value) })}
-                                                    placeholder="0.00"
-                                                    className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-semibold focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all"
-                                                />
-                                                <p className="text-xs font-semibold text-slate-400 mt-2">If the formula evaluates below this, the price will automatically bump up to this value.</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Step 2: Parameters Builder */}
-                            {currentStep === 2 && (
-                                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div>
-                                            <h2 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                                                <Sliders className="w-5 h-5 text-indigo-500" />
-                                                Parameter Builder
-                                            </h2>
-                                            <p className="text-xs font-semibold text-slate-500 mt-1">Add Dynamic Inputs (Width, Height, Dropdowns)</p>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <button onClick={() => addParameter('number')} className="h-9 px-4 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors">+ Number</button>
-                                            <button onClick={() => addParameter('dropdown')} className="h-9 px-4 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors">+ Dropdown</button>
-                                            <button onClick={() => addParameter('checkbox')} className="h-9 px-4 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition-colors">+ Checkbox</button>
-                                        </div>
-                                    </div>
-
-                                    {templateData.parameters.length === 0 ? (
-                                        <div className="bg-white rounded-3xl p-12 border border-slate-200 border-dashed text-center">
-                                            <Sliders className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                                            <h3 className="text-lg font-black text-slate-800">No Parameters Added</h3>
-                                            <p className="text-sm font-semibold text-slate-500 max-w-sm mx-auto mt-2">Use the buttons above to add fields that customers will fill out on the product page.</p>
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-4">
-                                            {templateData.parameters.map((param: any, idx: number) => (
-                                                <div key={param.id} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-start gap-4">
-                                                    <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-sm shrink-0">
-                                                        {idx + 1}
-                                                    </div>
-                                                    <div className="flex-1 space-y-4">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className="flex-1">
-                                                                <input
-                                                                    type="text"
-                                                                    value={param.label}
-                                                                    onChange={(e) => {
-                                                                        const newParams = [...templateData.parameters];
-                                                                        newParams[idx].label = e.target.value;
-                                                                        setTemplateData({ ...templateData, parameters: newParams });
-                                                                    }}
-                                                                    className="w-full text-sm font-bold bg-transparent border-b border-dashed border-slate-300 pb-1 focus:border-indigo-500 outline-none"
-                                                                />
-                                                                <div className="text-[10px] uppercase font-black text-slate-400 mt-1 flex items-center gap-2">
-                                                                    <span>Type: {param.type}</span>
-                                                                    <span className="w-1 h-1 rounded-full bg-slate-300" />
-                                                                    <span>ID: {param.id}</span>
-                                                                </div>
-                                                            </div>
-                                                            <button onClick={() => removeParameter(param.id)} className="w-8 h-8 rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 flex items-center justify-center transition-colors">
-                                                                <Target className="w-4 h-4" />
-                                                            </button>
-                                                        </div>
-                                                        {param.type === 'number' && (
-                                                            <div className="grid grid-cols-3 gap-3">
-                                                                <input type="number" placeholder="Min Value" className="h-9 px-3 text-xs font-semibold rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-indigo-400" />
-                                                                <input type="number" placeholder="Max Value" className="h-9 px-3 text-xs font-semibold rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-indigo-400" />
-                                                                <input type="text" placeholder="Unit (e.g. inch)" className="h-9 px-3 text-xs font-semibold rounded-lg bg-slate-50 border border-slate-200 outline-none focus:border-indigo-400" />
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Step 3: Option Pricing placeholder */}
-                            {currentStep === 3 && (
-                                <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm text-center">
-                                    <DollarSign className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                                    <h3 className="text-lg font-black text-slate-800">Option / Variant Pricing</h3>
-                                    <p className="text-sm font-semibold text-slate-500 max-w-md mx-auto mt-2">Assign base prices directly to dropdown choices (e.g. Vinyl = $8/sqft)</p>
-                                </div>
-                            )}
-
-                            {/* Step 4: Logic Rules Placeholder */}
-                            {currentStep === 4 && (
-                                <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm text-center">
-                                    <Waypoints className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                                    <h3 className="text-lg font-black text-slate-800">Conditional Rules</h3>
-                                    <p className="text-sm font-semibold text-slate-500 max-w-md mx-auto mt-2">IF Quantity {'>'} 10 THEN Apply 15% discount</p>
-                                </div>
-                            )}
-
-                            {/* Step 5: Formula Builder */}
-                            {currentStep === 5 && (
-                                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                    <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
-                                        <h2 className="text-lg font-black text-slate-800 flex items-center gap-2 mb-2">
-                                            <Target className="w-5 h-5 text-indigo-500" />
-                                            Formula Engine
-                                        </h2>
-                                        <p className="text-xs font-semibold text-slate-500 mb-6">Write your mathematical algorithm based on the parameters.</p>
-
-                                        <div className="bg-slate-900 rounded-xl p-4 font-mono text-sm text-emerald-400 mb-4 h-32 relative">
-                                            <textarea
-                                                value={templateData.formula}
-                                                onChange={e => setTemplateData({ ...templateData, formula: e.target.value })}
-                                                placeholder="(base_price + (width * height * material_rate)) * quantity"
-                                                className="w-full h-full bg-transparent resize-none outline-none placeholder:text-slate-700"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <h4 className="text-[10px] font-black uppercase text-slate-500 mb-2">Available Variables</h4>
-                                            <div className="flex flex-wrap gap-2">
-                                                <span className="px-2 py-1 bg-slate-100 rounded text-xs font-mono font-bold text-slate-600">base_price</span>
-                                                {templateData.parameters.map((p: any) => (
-                                                    <span key={p.id} onClick={() => setTemplateData({ ...templateData, formula: templateData.formula + `[${p.id}]` })} className="px-2 py-1 bg-indigo-50 cursor-pointer hover:bg-indigo-100 rounded text-xs font-mono font-bold text-indigo-600">
-                                                        [{p.id}]
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Nav Buttons within content */}
-                            <div className="flex items-center justify-between mt-8">
-                                <button
-                                    onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
-                                    className={`h-11 px-6 rounded-xl font-bold text-sm transition-all ${currentStep === 1 ? 'opacity-0 pointer-events-none' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'}`}
-                                >
-                                    Previous Step
+                    {/* Elements Card */}
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                        <div className="flex items-center justify-between mb-5">
+                            <h2 className="text-[15px] font-bold text-slate-900">Elements</h2>
+                            <div className="flex items-center gap-2">
+                                <button className="flex items-center gap-1.5 text-[13px] font-medium border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition-colors text-slate-700">
+                                    <Sparkles className="w-3.5 h-3.5" />
+                                    Create with AI
                                 </button>
-
-                                {currentStep < STEPS.length ? (
-                                    <button
-                                        onClick={() => setCurrentStep(prev => Math.min(STEPS.length, prev + 1))}
-                                        className="h-11 px-6 rounded-xl bg-slate-900 text-white font-bold text-sm hover:bg-slate-800 transition-all flex items-center gap-2 shadow-lg"
-                                    >
-                                        Next Step
-                                        <ChevronRight className="w-4 h-4" />
-                                    </button>
-                                ) : (
-                                    <button
-                                        onClick={handleSave}
-                                        className="h-11 px-8 rounded-xl bg-[#00b894] text-white font-bold text-sm hover:bg-[#00a884] transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/20"
-                                    >
-                                        <Save className="w-4 h-4" />
-                                        Complete & Save
-                                    </button>
-                                )}
+                                <button className="text-[13px] font-medium border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition-colors text-slate-700">
+                                    + Add element
+                                </button>
                             </div>
+                        </div>
 
+                        <div className="space-y-2.5">
+                            {elements.map((el) => (
+                                <div key={el.id} className="flex items-center justify-between p-2 rounded-lg border border-transparent hover:border-slate-200 hover:shadow-sm group transition-all">
+                                    <div className="flex items-center gap-3">
+                                        <div className="cursor-grab text-slate-300 hover:text-slate-500">
+                                            <Move className="w-4 h-4" />
+                                        </div>
+                                        <div className="w-8 h-8 rounded-md bg-slate-100 flex items-center justify-center border border-slate-200">
+                                            {renderElementIcon(el.icon)}
+                                        </div>
+                                        <span className="text-[13px] text-slate-700">{el.label}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded bg-white text-slate-600 hover:bg-slate-50">
+                                            <Edit2 className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded bg-white text-slate-600 hover:bg-slate-50">
+                                            <Copy className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded bg-white text-slate-600 hover:bg-slate-50">
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
+
+                    {/* Formula & Settings Card */}
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col">
+                        <div className="flex items-center border-b border-slate-200 px-5 pt-5 pb-0 gap-6">
+                            <button className="flex items-center gap-2 pb-3 border-b-2 border-slate-800 text-[13px] font-semibold text-slate-900">
+                                <Circle className="w-3.5 h-3.5 fill-slate-800 text-slate-800" /> Formula
+                            </button>
+                            <button className="flex items-center gap-2 pb-3 border-b-2 border-transparent text-[13px] text-slate-500 hover:text-slate-700">
+                                <Circle className="w-3.5 h-3.5 text-slate-400" /> Products
+                            </button>
+                            <button className="flex items-center gap-2 pb-3 border-b-2 border-transparent text-[13px] text-slate-500 hover:text-slate-700">
+                                <Circle className="w-3.5 h-3.5 text-slate-400" /> Other pages
+                            </button>
+                            <button className="flex items-center gap-2 pb-3 border-b-2 border-transparent text-[13px] text-slate-500 hover:text-slate-700">
+                                <Circle className="w-3.5 h-3.5 text-slate-400" /> Settings
+                            </button>
+                        </div>
+
+                        <div className="p-5">
+                            <h3 className="text-[14px] font-bold text-slate-900">Formula</h3>
+                            <p className="text-[12px] text-slate-500 mt-0.5 mb-3">Click the box to see everything you can use — use ↑↓ to navigate, Enter or Tab to apply.</p>
+
+                            <textarea
+                                className="w-full h-32 border border-slate-300 rounded-lg p-3 text-[13px] font-mono text-slate-700 focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400 resize-none whitespace-pre-wrap"
+                                defaultValue={`(shopify_product_price + MAX(0, MAX(Custom Width, Shopify_meta_default_width) * MAX(Custom Height, Shopify_meta_default_height) - Shopify_meta_default_width * Shopify_meta_default_height) * Shopify_meta_rate + Coating + Printed Sides + Shape + Drilled Holes + Standoffs + Accessories)`}
+                            />
+
+                            <div className="flex items-center justify-between mt-3 mb-6">
+                                <button className="flex items-center gap-1.5 text-[13px] font-medium border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition-colors text-slate-700">
+                                    <Sparkles className="w-3.5 h-3.5" />
+                                    Write my formula
+                                </button>
+                                <button className="text-[13px] font-medium border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition-colors text-slate-700">
+                                    Check formula
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="col-span-2">
+                                    <label className="block text-[12px] text-slate-700 mb-1.5">Formula Label</label>
+                                    <input type="text" defaultValue="Price" className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400" />
+                                </div>
+                                <div>
+                                    <label className="block text-[12px] text-slate-700 mb-1.5">Formula Prefix</label>
+                                    <input type="text" defaultValue="$" className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400" />
+                                </div>
+                                <div>
+                                    <label className="block text-[12px] text-slate-700 mb-1.5">Formula Suffix</label>
+                                    <input type="text" defaultValue="USD" className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400" />
+                                </div>
+                                <div>
+                                    <label className="block text-[12px] text-slate-700 mb-1.5">Minimum Formula Value</label>
+                                    <input type="number" defaultValue="0" className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400" />
+                                </div>
+                                <div>
+                                    <label className="block text-[12px] text-slate-700 mb-1.5">Formula Decimals</label>
+                                    <input type="number" defaultValue="2" className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
+
+                {/* Right Column */}
+                <div className="w-[360px] xl:w-[400px] shrink-0 space-y-6">
+
+                    {/* Visual Preview */}
+                    <div className="bg-white rounded-[2rem] shadow-sm border-[8px] border-slate-200/50 p-6">
+                        <div className="space-y-4">
+                            <div>
+                                <label className="flex items-center gap-1 text-[13px] font-bold text-slate-900 mb-1.5">
+                                    Custom Width <Info className="w-3.5 h-3.5 text-slate-700" />
+                                </label>
+                                <input type="number" defaultValue="72" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-[13px] outline-none focus:border-slate-400" />
+                            </div>
+                            <div>
+                                <label className="flex items-center gap-1 text-[13px] font-bold text-slate-900 mb-1.5">
+                                    Custom Height <Info className="w-3.5 h-3.5 text-slate-700" />
+                                </label>
+                                <input type="number" defaultValue="36" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-[13px] outline-none focus:border-slate-400" />
+                            </div>
+                            <div>
+                                <label className="block text-[13px] font-bold text-slate-900 mb-1.5">Coating</label>
+                                <select className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-[13px] outline-none appearance-none bg-white font-medium bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%2F%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[right_8px_center] bg-no-repeat">
+                                    <option>None / Standard</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-[13px] font-bold text-slate-900 mb-1.5">Shape</label>
+                                <select className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-[13px] outline-none appearance-none bg-white font-medium bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%2F%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[right_8px_center] bg-no-repeat">
+                                    <option>Square / Rectangle</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-[13px] font-bold text-slate-900 mb-1.5">Printed Sides</label>
+                                <div className="space-y-1">
+                                    <label className="flex items-center gap-2 text-[13px] text-slate-700 font-medium">
+                                        <input type="radio" checked className="w-4 h-4 accent-blue-600" />
+                                        Single Sided
+                                    </label>
+                                    <label className="flex items-center gap-2 text-[13px] text-slate-700 font-medium whitespace-nowrap">
+                                        <input type="radio" className="w-4 h-4 accent-blue-600" />
+                                        Double Sided
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="pt-2">
+                                <label className="flex items-center gap-2 text-[13px] text-slate-700 font-medium">
+                                    <input type="checkbox" className="w-4 h-4 rounded border-slate-300" />
+                                    Drilled Holes
+                                </label>
+                            </div>
+                            <div>
+                                <label className="block text-[13px] font-bold text-slate-900 mt-2 mb-1.5">Standoffs</label>
+                                <select className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-[13px] outline-none appearance-none bg-white font-medium bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%2F%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[right_8px_center] bg-no-repeat">
+                                    <option>None</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-[13px] font-bold text-slate-900 mt-2 mb-1.5">Accessories</label>
+                                <select className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-[13px] outline-none appearance-none bg-white font-medium bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%2F%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[right_8px_center] bg-no-repeat">
+                                    <option>None</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="flex items-center gap-1 text-[13px] font-bold text-slate-900 mb-1.5 mt-2">
+                                    Quantity <Info className="w-3.5 h-3.5 text-slate-700" />
+                                </label>
+                                <input type="number" defaultValue="1" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-[13px] outline-none focus:border-slate-400" />
+                            </div>
+
+                            <div className="pt-4 mt-4 mb-2">
+                                <label className="block text-[13px] font-bold text-slate-900 mb-1">Price</label>
+                                <div className="text-[28px] font-black tracking-tight text-slate-900">$ 0.00</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Meta Card */}
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-[14px] font-bold text-slate-900">Get your calculator live</h3>
+                            <span className="bg-[#A7F3D0] text-emerald-800 text-[11px] px-2 py-0.5 rounded-full font-medium">Live on your store</span>
+                        </div>
+
+                        <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium mb-2">
+                            <span>3/3 completed</span>
+                        </div>
+                        <div className="w-full bg-slate-100 rounded-full h-1.5 mb-5">
+                            <div className="bg-[#60A5FA] h-1.5 rounded-full w-full"></div>
+                        </div>
+
+                        <div className="space-y-3 mb-5 text-[13px] text-slate-700">
+                            <div className="flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-slate-900 fill-slate-900 text-white" />
+                                <span>Build your calculator</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-slate-900 fill-slate-900 text-white" />
+                                <span>Enable the app embed</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-slate-900 fill-slate-900 text-white" />
+                                <span>Choose where it appears</span>
+                            </div>
+                        </div>
+
+                        <button className="w-full bg-[#2B2B2B] hover:bg-black text-white rounded-lg py-2.5 text-[13px] font-bold mb-3 shadow-md transition-all">
+                            View it on your store
+                        </button>
+
+                        <div className="text-center">
+                            <a href="#" className="text-[#3B82F6] hover:underline text-[13px] font-medium">Customize design</a>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
         </div>
     );
