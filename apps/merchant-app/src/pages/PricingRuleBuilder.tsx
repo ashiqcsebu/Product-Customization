@@ -1,168 +1,298 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Move, Copy, Trash2, Edit2, Sparkles, Check, Info, Settings, Code, LayoutList, CheckCircle2, Circle } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, GripVertical, Copy, Trash2, Edit2, Sparkles, Check, Info, Settings, Code, Sparkle, ExternalLink, MoreVertical, Plus, Calculator, ChevronDown, ChevronRight, CheckCircle2, BookOpen, PlayCircle, HelpCircle } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
-export function PricingRuleBuilder() {
-    const navigate = useNavigate();
-    const { id } = useParams();
-    const isEditing = Boolean(id);
+// --- Sortable Item Component ---
+function SortableElement({ id, element, index, onRemove }: { id: string | number, element: any, index: number, onRemove: (id: any) => void }) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
-    // Mock Data based on the image
-    const [name, setName] = useState("Frosted Lettering");
-    const [elements, setElements] = useState([
-        { id: 1, type: 'number', label: 'Custom Width', icon: '123' },
-        { id: 2, type: 'number', label: 'Custom Height', icon: '123' },
-        { id: 3, type: 'select', label: 'Coating', icon: 'dropdown' },
-        { id: 4, type: 'select', label: 'Shape', icon: 'dropdown' },
-        { id: 5, type: 'radio', label: 'Printed Sides', icon: 'radio' },
-        { id: 6, type: 'checkbox', label: 'Drilled Holes', icon: 'checkbox' },
-        { id: 7, type: 'select', label: 'Standoffs', icon: 'dropdown' },
-        { id: 8, type: 'select', label: 'Accessories', icon: 'dropdown' },
-        { id: 9, type: 'number', label: 'Quantity', icon: '123' },
-    ]);
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        zIndex: isDragging ? 10 : 1,
+    };
 
-    const renderElementIcon = (icon: string) => {
-        if (icon === '123') return <div className="text-[10px] font-black border border-slate-300 rounded px-1 text-slate-500 tracking-tighter">123</div>;
-        if (icon === 'dropdown') return <div className="w-4 h-3 border-2 border-slate-300 rounded-[3px] flex items-center justify-center after:content-[''] after:w-1.5 after:h-1.5 after:bg-slate-300 after:rounded-sm"></div>;
-        if (icon === 'radio') return <div className="w-3.5 h-3.5 border-2 border-slate-400 rounded-full flex items-center justify-center before:content-[''] before:w-1.5 before:h-1.5 before:bg-slate-400 before:rounded-full"></div>;
-        if (icon === 'checkbox') return <div className="w-3.5 h-3.5 border-2 border-slate-400 rounded-sm flex items-center justify-center"><Check className="w-2.5 h-2.5 text-slate-400" /></div>;
+    const renderIcon = (type: string) => {
+        if (type === 'number') return <div className="bg-indigo-600 rounded text-[9px] font-bold text-white px-1.5 py-1">123</div>;
+        if (type === 'select') return <div className="bg-emerald-500 rounded p-1 flex items-center justify-center"><ChevronDown className="w-3.5 h-3.5 text-white" /></div>;
+        if (type === 'radio') return <div className="bg-blue-500 rounded p-1.5 flex items-center justify-center"><div className="w-2 h-2 bg-white rounded-full"></div></div>;
+        if (type === 'checkbox') return <div className="bg-amber-500 rounded p-1 flex items-center justify-center"><Check className="w-3.5 h-3.5 text-white" /></div>;
         return null;
     }
 
     return (
-        <div className="min-h-screen bg-[#F4F6F8] pb-20">
-            {/* Header */}
-            <div className="flex items-center gap-3 px-8 py-5">
-                <button onClick={() => navigate('/pricing')} className="text-slate-600 hover:text-slate-900 transition-colors">
-                    <ArrowLeft className="w-5 h-5" />
-                </button>
-                <h1 className="text-xl font-bold text-slate-800 flex items-center gap-3">
-                    Calculator
-                    <span className="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-0.5 rounded-full font-semibold border border-emerald-200">Live</span>
-                </h1>
+        <div ref={setNodeRef} style={style} className="flex items-center justify-between p-3 rounded-lg border border-slate-100 bg-white hover:border-slate-200 hover:shadow-sm group transition-all">
+            <div className="flex items-center gap-3">
+                <div {...attributes} {...listeners} className="cursor-grab p-1 text-slate-300 hover:text-slate-500">
+                    <GripVertical className="w-4 h-4" />
+                </div>
+                <div className="w-6 text-[12px] font-medium text-slate-400 text-center">{index + 1}</div>
+                <div className="w-8 h-8 rounded-md flex items-center justify-center">
+                    {renderIcon(element.type)}
+                </div>
+                <div>
+                    <span className="text-[13px] font-bold text-slate-800">{element.label}</span>
+                    <span className="text-[12px] text-slate-400 font-medium ml-3 capitalize tracking-tight">{element.type === 'select' ? 'Dropdown' : element.type}</span>
+                </div>
             </div>
 
-            <div className="max-w-[1400px] mx-auto px-8 flex items-start gap-6">
+            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button className="w-7 h-7 flex items-center justify-center rounded text-slate-600 hover:bg-slate-100">
+                    <Edit2 className="w-3.5 h-3.5" />
+                </button>
+                <button className="w-7 h-7 flex items-center justify-center rounded text-slate-600 hover:bg-slate-100">
+                    <Copy className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => onRemove(element.id)} className="w-7 h-7 flex items-center justify-center rounded text-rose-500 hover:bg-rose-50">
+                    <Trash2 className="w-3.5 h-3.5" />
+                </button>
+                <button className="w-7 h-7 flex items-center justify-center rounded text-slate-400 hover:bg-slate-100">
+                    <ChevronRight className="w-4 h-4" />
+                </button>
+            </div>
+        </div>
+    );
+}
 
-                {/* Left Column */}
+// --- Main Builder Component ---
+export function PricingRuleBuilder() {
+    const navigate = useNavigate();
+    const { id } = useParams();
+
+    // Core State
+    const [name, setName] = useState("Frosted Lettering");
+    const [elements, setElements] = useState([
+        { id: 'custom-width', type: 'number', label: 'Custom Width', unit: 'in' },
+        { id: 'custom-height', type: 'number', label: 'Custom Height', unit: 'in' },
+        { id: 'coating', type: 'select', label: 'Coating', options: ['None / Standard'] },
+        { id: 'shape', type: 'select', label: 'Shape', options: ['Square / Rectangle'] },
+        { id: 'printed-sides', type: 'radio', label: 'Printed Sides', options: ['Single Sided', 'Double Sided'] },
+        { id: 'drilled-holes', type: 'checkbox', label: 'Drilled Holes' },
+        { id: 'standoffs', type: 'select', label: 'Standoffs', options: ['None'] },
+        { id: 'accessories', type: 'select', label: 'Accessories', options: ['None'] },
+        { id: 'quantity', type: 'number', label: 'Quantity' },
+    ]);
+
+    const [formulaCode, setFormulaCode] = useState(`(shopify_product_price
+  + MAX(0, MAX(Custom Width, Shopify_meta_default_width)
+  * MAX(Custom Height, Shopify_meta_default_height)
+  - Shopify_meta_default_width
+  * Shopify_meta_default_height)
+  * Shopify_meta_rate
+  + Coating
+  + Printed Sides
+  + Shape
+  + Drilled Holes
+  + Standoffs
+  + Accessories)
+  * Quantity`);
+
+    // Dnd Sensors
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    );
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (over && active.id !== over.id) {
+            setElements((items) => {
+                const oldIndex = items.findIndex(i => i.id === active.id);
+                const newIndex = items.findIndex(i => i.id === over.id);
+                return arrayMove(items, oldIndex, newIndex);
+            });
+        }
+    };
+
+    const addElement = (type: string) => {
+        const newEl = {
+            id: `el_${Date.now()}`,
+            type,
+            label: `New ${type}`,
+            options: type === 'select' || type === 'radio' ? ['Option 1'] : []
+        };
+        setElements([...elements, newEl]);
+    };
+
+    const removeElement = (idToRemove: string) => {
+        setElements(elements.filter(e => e.id !== idToRemove));
+    };
+
+    return (
+        <div className="min-h-screen bg-[#F8FAFC] pb-20 font-sans text-slate-800">
+            {/* Topbar */}
+            <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200 sticky top-0 z-50">
+                <div className="flex items-center gap-4">
+                    <button onClick={() => navigate('/pricing')} className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors">
+                        <ArrowLeft className="w-5 h-5" />
+                    </button>
+                    <h1 className="text-xl font-bold text-slate-900 flex items-center gap-3">
+                        Calculator
+                        <span className="bg-[#D1FAE5] text-emerald-800 text-[11px] px-2.5 py-0.5 rounded-full font-bold">Live</span>
+                    </h1>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    <button className="h-9 px-4 rounded-lg bg-white border border-slate-200 text-slate-700 text-[13px] font-bold hover:bg-slate-50 flex items-center gap-2 shadow-sm">
+                        <ExternalLink className="w-4 h-4" />
+                        Preview on store
+                    </button>
+                    <button className="h-9 px-5 rounded-lg bg-[#4F46E5] hover:bg-indigo-700 text-white text-[13px] font-bold shadow-sm transition-colors">
+                        Save calculator
+                    </button>
+                    <button className="w-9 h-9 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50">
+                        <MoreVertical className="w-4 h-4" />
+                    </button>
+                </div>
+            </header>
+
+            <div className="max-w-[1440px] mx-auto px-6 pt-6 flex items-start gap-6">
+
+                {/* Left Workspace Column */}
                 <div className="flex-1 space-y-6">
 
-                    {/* Calculator Name Card */}
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-                        <label className="block text-[13px] font-semibold text-slate-700 mb-1.5">Calculator Name</label>
-                        <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-slate-400 transition-all"
-                        />
-                        <div className="flex items-center gap-1.5 mt-3 text-[12px]">
-                            <a href="#" className="text-blue-600 hover:underline">View version history</a>
-                            <span className="text-slate-400">&middot;</span>
-                            <span className="text-slate-500">Compare versions</span>
-                            <Info className="w-3.5 h-3.5 text-slate-900 cursor-pointer" />
+                    {/* Calculator Details */}
+                    <div className="bg-white rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-slate-200 p-6 flex items-start gap-5">
+                        <div className="w-14 h-14 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
+                            <Calculator className="w-6 h-6 text-indigo-600" />
+                        </div>
+                        <div className="flex-1">
+                            <h2 className="text-[15px] font-bold text-slate-900 mb-4">Calculator details</h2>
+
+                            <label className="block text-[13px] font-medium text-slate-700 mb-1.5">Calculator name</label>
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                className="w-full h-10 border border-slate-300 rounded-lg px-3 text-[13px] font-medium text-slate-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                            />
+                            <div className="flex items-center gap-2 mt-4 text-[13px]">
+                                <a href="#" className="font-semibold text-indigo-600 hover:underline">View version history</a>
+                                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                                <span className="text-slate-500 ml-2">Compare versions</span>
+                                <Info className="w-4 h-4 text-slate-900 cursor-pointer ml-1" />
+                            </div>
                         </div>
                     </div>
 
-                    {/* Elements Card */}
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-                        <div className="flex items-center justify-between mb-5">
+                    {/* Elements Builder */}
+                    <div className="bg-white rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-slate-200 p-6">
+                        <div className="flex items-center justify-between mb-2">
                             <h2 className="text-[15px] font-bold text-slate-900">Elements</h2>
                             <div className="flex items-center gap-2">
-                                <button className="flex items-center gap-1.5 text-[13px] font-medium border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition-colors text-slate-700">
-                                    <Sparkles className="w-3.5 h-3.5" />
+                                <button className="flex items-center gap-1.5 text-[13px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-lg px-3 py-2 hover:bg-indigo-100 transition-colors">
+                                    <Sparkles className="w-4 h-4" />
                                     Create with AI
                                 </button>
-                                <button className="text-[13px] font-medium border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition-colors text-slate-700">
-                                    + Add element
+                                <button onClick={() => addElement('number')} className="flex items-center justify-center text-[13px] font-bold border border-slate-200 rounded-lg px-4 py-2 hover:bg-slate-50 transition-colors text-slate-700">
+                                    <Plus className="w-4 h-4 mr-1.5" />
+                                    Add element
                                 </button>
                             </div>
                         </div>
+                        <p className="text-[13px] text-slate-500 mb-5">Drag and drop to reorder</p>
 
-                        <div className="space-y-2.5">
-                            {elements.map((el) => (
-                                <div key={el.id} className="flex items-center justify-between p-2 rounded-lg border border-transparent hover:border-slate-200 hover:shadow-sm group transition-all">
-                                    <div className="flex items-center gap-3">
-                                        <div className="cursor-grab text-slate-300 hover:text-slate-500">
-                                            <Move className="w-4 h-4" />
-                                        </div>
-                                        <div className="w-8 h-8 rounded-md bg-slate-100 flex items-center justify-center border border-slate-200">
-                                            {renderElementIcon(el.icon)}
-                                        </div>
-                                        <span className="text-[13px] text-slate-700">{el.label}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded bg-white text-slate-600 hover:bg-slate-50">
-                                            <Edit2 className="w-3.5 h-3.5" />
-                                        </button>
-                                        <button className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded bg-white text-slate-600 hover:bg-slate-50">
-                                            <Copy className="w-3.5 h-3.5" />
-                                        </button>
-                                        <button className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded bg-white text-slate-600 hover:bg-slate-50">
-                                            <Trash2 className="w-3.5 h-3.5" />
-                                        </button>
-                                    </div>
+                        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                            <SortableContext items={elements} strategy={verticalListSortingStrategy}>
+                                <div className="space-y-1">
+                                    {elements.map((el, index) => (
+                                        <SortableElement key={el.id} id={el.id} element={el} index={index} onRemove={removeElement} />
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
+                            </SortableContext>
+                        </DndContext>
                     </div>
 
-                    {/* Formula & Settings Card */}
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col">
-                        <div className="flex items-center border-b border-slate-200 px-5 pt-5 pb-0 gap-6">
-                            <button className="flex items-center gap-2 pb-3 border-b-2 border-slate-800 text-[13px] font-semibold text-slate-900">
-                                <Circle className="w-3.5 h-3.5 fill-slate-800 text-slate-800" /> Formula
-                            </button>
-                            <button className="flex items-center gap-2 pb-3 border-b-2 border-transparent text-[13px] text-slate-500 hover:text-slate-700">
-                                <Circle className="w-3.5 h-3.5 text-slate-400" /> Products
-                            </button>
-                            <button className="flex items-center gap-2 pb-3 border-b-2 border-transparent text-[13px] text-slate-500 hover:text-slate-700">
-                                <Circle className="w-3.5 h-3.5 text-slate-400" /> Other pages
-                            </button>
-                            <button className="flex items-center gap-2 pb-3 border-b-2 border-transparent text-[13px] text-slate-500 hover:text-slate-700">
-                                <Circle className="w-3.5 h-3.5 text-slate-400" /> Settings
-                            </button>
+                    {/* Formula Editor */}
+                    <div className="bg-white rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-slate-200">
+                        <div className="flex items-center border-b border-slate-200">
+                            <button className="flex-1 py-4 text-[13px] font-bold text-indigo-600 border-b-2 border-indigo-600">Formula</button>
+                            <button className="flex-1 py-4 text-[13px] font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent">Products</button>
+                            <button className="flex-1 py-4 text-[13px] font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent">Other pages</button>
+                            <button className="flex-1 py-4 text-[13px] font-medium text-slate-500 hover:text-slate-800 border-b-2 border-transparent">Settings</button>
                         </div>
 
-                        <div className="p-5">
-                            <h3 className="text-[14px] font-bold text-slate-900">Formula</h3>
-                            <p className="text-[12px] text-slate-500 mt-0.5 mb-3">Click the box to see everything you can use — use ↑↓ to navigate, Enter or Tab to apply.</p>
-
-                            <textarea
-                                className="w-full h-32 border border-slate-300 rounded-lg p-3 text-[13px] font-mono text-slate-700 focus:outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-400 resize-none whitespace-pre-wrap"
-                                defaultValue={`(shopify_product_price + MAX(0, MAX(Custom Width, Shopify_meta_default_width) * MAX(Custom Height, Shopify_meta_default_height) - Shopify_meta_default_width * Shopify_meta_default_height) * Shopify_meta_rate + Coating + Printed Sides + Shape + Drilled Holes + Standoffs + Accessories)`}
-                            />
-
-                            <div className="flex items-center justify-between mt-3 mb-6">
-                                <button className="flex items-center gap-1.5 text-[13px] font-medium border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition-colors text-slate-700">
-                                    <Sparkles className="w-3.5 h-3.5" />
-                                    Write my formula
-                                </button>
-                                <button className="text-[13px] font-medium border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-50 transition-colors text-slate-700">
-                                    Check formula
+                        <div className="p-6">
+                            <div className="flex items-start justify-between mb-4">
+                                <div>
+                                    <h3 className="text-[15px] font-bold text-slate-900">Build your formula</h3>
+                                    <p className="text-[13px] text-slate-500 mt-1">Use variables, operators and functions to calculate the price.</p>
+                                </div>
+                                <button className="flex items-center gap-2 h-8 px-3 rounded bg-white text-[12px] font-bold text-slate-700 border border-slate-200 shadow-sm hover:bg-slate-50">
+                                    <Code className="w-3.5 h-3.5" /> Insert variable
                                 </button>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="col-span-2">
-                                    <label className="block text-[12px] text-slate-700 mb-1.5">Formula Label</label>
-                                    <input type="text" defaultValue="Price" className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400" />
+                            <div className="bg-[#FFFBF2] rounded-lg border border-[#FDE68A] p-4 font-mono text-[13px] leading-6 text-slate-800 relative shadow-inner overflow-hidden flex">
+                                {/* Simulated Line Numbers */}
+                                <div className="text-right pr-4 text-slate-400 select-none border-r border-[#FDE68A] mr-4 flex flex-col pt-0.5">
+                                    {formulaCode.split('\n').map((_, i) => <span key={i}>{i + 1}</span>)}
                                 </div>
-                                <div>
-                                    <label className="block text-[12px] text-slate-700 mb-1.5">Formula Prefix</label>
-                                    <input type="text" defaultValue="$" className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400" />
+                                <textarea
+                                    className="w-full bg-transparent resize-none outline-none whitespace-pre"
+                                    value={formulaCode}
+                                    onChange={e => setFormulaCode(e.target.value)}
+                                    rows={13}
+                                />
+                            </div>
+
+                            <div className="flex items-center justify-between mt-4 pb-6 border-b border-slate-100">
+                                <button className="flex items-center gap-2 h-9 px-4 rounded-lg bg-indigo-50 text-[13px] font-bold text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition">
+                                    <Sparkles className="w-4 h-4" /> Write my formula
+                                </button>
+                                <button className="flex items-center gap-2 h-9 px-4 rounded-lg bg-white text-[13px] font-bold text-slate-700 border border-slate-200 shadow-sm hover:bg-slate-50">
+                                    <CheckCircle2 className="w-4 h-4" /> Check formula
+                                </button>
+                            </div>
+
+                            <div className="pt-6">
+                                <h3 className="text-[14px] font-bold text-slate-900 mb-4">Formula settings</h3>
+                                <div className="grid grid-cols-3 gap-5">
+                                    <div>
+                                        <label className="block text-[12px] font-semibold text-slate-700 mb-1.5">Formula label</label>
+                                        <input type="text" defaultValue="Price" className="w-full h-10 text-[13px] border border-slate-300 rounded-lg px-3 focus:outline-none focus:border-indigo-400" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[12px] font-semibold text-slate-700 mb-1.5">Prefix</label>
+                                        <input type="text" defaultValue="$" className="w-full h-10 text-[13px] border border-slate-300 rounded-lg px-3 focus:outline-none focus:border-indigo-400" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[12px] font-semibold text-slate-700 mb-1.5">Suffix</label>
+                                        <input type="text" defaultValue="USD" className="w-full h-10 text-[13px] border border-slate-300 rounded-lg px-3 focus:outline-none focus:border-indigo-400" />
+                                    </div>
+                                    <div className="col-span-2">
+                                        <label className="block text-[12px] font-semibold text-slate-700 mb-1.5">Minimum value</label>
+                                        <input type="number" defaultValue="0" className="w-full h-10 text-[13px] border border-slate-300 rounded-lg px-3 focus:outline-none focus:border-indigo-400" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[12px] font-semibold text-slate-700 mb-1.5">Decimals</label>
+                                        <select className="w-full h-10 text-[13px] border border-slate-300 rounded-lg px-3 outline-none appearance-none bg-white font-medium bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%2F%3E%3C%2Fsvg%3E')] bg-[length:16px_16px] bg-[right_10px_center] bg-no-repeat focus:border-indigo-400">
+                                            <option>2</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-[12px] text-slate-700 mb-1.5">Formula Suffix</label>
-                                    <input type="text" defaultValue="USD" className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400" />
-                                </div>
-                                <div>
-                                    <label className="block text-[12px] text-slate-700 mb-1.5">Minimum Formula Value</label>
-                                    <input type="number" defaultValue="0" className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400" />
-                                </div>
-                                <div>
-                                    <label className="block text-[12px] text-slate-700 mb-1.5">Formula Decimals</label>
-                                    <input type="number" defaultValue="2" className="w-full text-[13px] border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400" />
+
+                                <div className="mt-5 p-4 bg-indigo-50 rounded-lg flex items-center gap-3 text-[13px] text-indigo-700 font-medium border border-indigo-100">
+                                    <Info className="w-4 h-4 shrink-0" />
+                                    The calculated price will be rounded to 2 decimal places.
                                 </div>
                             </div>
                         </div>
@@ -170,116 +300,139 @@ export function PricingRuleBuilder() {
 
                 </div>
 
-                {/* Right Column */}
-                <div className="w-[360px] xl:w-[400px] shrink-0 space-y-6">
+                {/* Right Sticky Sidebar */}
+                <div className="w-[380px] shrink-0 space-y-6 sticky top-24">
 
-                    {/* Visual Preview */}
-                    <div className="bg-white rounded-[2rem] shadow-sm border-[8px] border-slate-200/50 p-6">
-                        <div className="space-y-4">
+                    {/* Live Preview Display */}
+                    <div className="bg-white rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-slate-200">
+                        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
                             <div>
-                                <label className="flex items-center gap-1 text-[13px] font-bold text-slate-900 mb-1.5">
-                                    Custom Width <Info className="w-3.5 h-3.5 text-slate-700" />
-                                </label>
-                                <input type="number" defaultValue="72" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-[13px] outline-none focus:border-slate-400" />
+                                <h3 className="text-[15px] font-bold text-slate-900">Live preview</h3>
+                                <p className="text-[12px] text-slate-500 mt-0.5">This is how it appears on your store.</p>
                             </div>
-                            <div>
-                                <label className="flex items-center gap-1 text-[13px] font-bold text-slate-900 mb-1.5">
-                                    Custom Height <Info className="w-3.5 h-3.5 text-slate-700" />
-                                </label>
-                                <input type="number" defaultValue="36" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-[13px] outline-none focus:border-slate-400" />
-                            </div>
-                            <div>
-                                <label className="block text-[13px] font-bold text-slate-900 mb-1.5">Coating</label>
-                                <select className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-[13px] outline-none appearance-none bg-white font-medium bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%2F%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[right_8px_center] bg-no-repeat">
-                                    <option>None / Standard</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-[13px] font-bold text-slate-900 mb-1.5">Shape</label>
-                                <select className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-[13px] outline-none appearance-none bg-white font-medium bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%2F%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[right_8px_center] bg-no-repeat">
-                                    <option>Square / Rectangle</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-[13px] font-bold text-slate-900 mb-1.5">Printed Sides</label>
-                                <div className="space-y-1">
-                                    <label className="flex items-center gap-2 text-[13px] text-slate-700 font-medium">
-                                        <input type="radio" checked className="w-4 h-4 accent-blue-600" />
-                                        Single Sided
-                                    </label>
-                                    <label className="flex items-center gap-2 text-[13px] text-slate-700 font-medium whitespace-nowrap">
-                                        <input type="radio" className="w-4 h-4 accent-blue-600" />
-                                        Double Sided
-                                    </label>
+                            <span className="bg-[#D1FAE5] text-emerald-800 text-[11px] px-2.5 py-0.5 rounded-full font-bold">Live</span>
+                        </div>
+
+                        <div className="p-6 bg-[#F8FAFC]">
+                            <div className="bg-white rounded-[24px] shadow-sm border border-indigo-100 p-6 space-y-5 ring-[6px] ring-indigo-50/50">
+
+                                {elements.map((el) => (
+                                    <div key={el.id}>
+                                        <label className="flex items-center gap-1.5 text-[13px] font-bold text-slate-800 mb-2">
+                                            {el.label}
+                                            {el.type !== 'checkbox' && el.type !== 'radio' && <Info className="w-3 h-3 text-slate-400" />}
+                                        </label>
+
+                                        {el.type === 'number' && (
+                                            <div className="relative">
+                                                <input type="number" defaultValue="72" className="w-full h-11 px-3 border border-slate-200 rounded-lg text-[14px]" />
+                                                {el.unit && <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[13px] font-medium text-slate-400 border-l border-slate-200 pl-3">{el.unit}</div>}
+                                            </div>
+                                        )}
+
+                                        {el.type === 'select' && (
+                                            <select className="w-full h-11 px-3 border border-slate-200 rounded-lg text-[14px] bg-white outline-none appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%2F%3E%3C%2Fsvg%3E')] bg-[length:18px_18px] bg-[right_12px_center] bg-no-repeat">
+                                                {el.options?.map(opt => <option key={opt}>{opt}</option>)}
+                                            </select>
+                                        )}
+
+                                        {el.type === 'radio' && (
+                                            <div className="space-y-2">
+                                                {el.options?.map((opt, i) => (
+                                                    <label key={opt} className="flex items-center gap-2">
+                                                        <input type="radio" name={el.id} defaultChecked={i === 0} className="w-4 h-4 accent-indigo-600 border-slate-300" />
+                                                        <span className="text-[13px] text-slate-700">{opt}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {el.type === 'checkbox' && (
+                                            <label className="flex items-center gap-2">
+                                                <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-600" />
+                                                <span className="text-[13px] text-slate-700">{el.label}</span>
+                                            </label>
+                                        )}
+                                    </div>
+                                ))}
+
+                                <div className="mt-8 pt-4">
+                                    <p className="text-[13px] font-bold text-slate-800 mb-1">Estimated price</p>
+                                    <p className="text-[32px] font-black tracking-tight text-slate-900">$0.00</p>
                                 </div>
-                            </div>
-                            <div className="pt-2">
-                                <label className="flex items-center gap-2 text-[13px] text-slate-700 font-medium">
-                                    <input type="checkbox" className="w-4 h-4 rounded border-slate-300" />
-                                    Drilled Holes
-                                </label>
-                            </div>
-                            <div>
-                                <label className="block text-[13px] font-bold text-slate-900 mt-2 mb-1.5">Standoffs</label>
-                                <select className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-[13px] outline-none appearance-none bg-white font-medium bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%2F%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[right_8px_center] bg-no-repeat">
-                                    <option>None</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-[13px] font-bold text-slate-900 mt-2 mb-1.5">Accessories</label>
-                                <select className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-[13px] outline-none appearance-none bg-white font-medium bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%207.5L10%2012.5L15%207.5%22%20stroke%3D%22%2364748B%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%2F%3E%3C%2Fsvg%3E')] bg-[length:20px_20px] bg-[right_8px_center] bg-no-repeat">
-                                    <option>None</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="flex items-center gap-1 text-[13px] font-bold text-slate-900 mb-1.5 mt-2">
-                                    Quantity <Info className="w-3.5 h-3.5 text-slate-700" />
-                                </label>
-                                <input type="number" defaultValue="1" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-[13px] outline-none focus:border-slate-400" />
-                            </div>
-
-                            <div className="pt-4 mt-4 mb-2">
-                                <label className="block text-[13px] font-bold text-slate-900 mb-1">Price</label>
-                                <div className="text-[28px] font-black tracking-tight text-slate-900">$ 0.00</div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Meta Card */}
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                    {/* Deployment Card */}
+                    <div className="bg-white rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.05)] border border-slate-200 p-5">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-[14px] font-bold text-slate-900">Get your calculator live</h3>
-                            <span className="bg-[#A7F3D0] text-emerald-800 text-[11px] px-2 py-0.5 rounded-full font-medium">Live on your store</span>
+                            <h3 className="text-[15px] font-bold text-slate-900">Deployment</h3>
+                            <span className="bg-[#D1FAE5] text-emerald-800 text-[11px] px-2.5 py-0.5 rounded-full font-bold">3/3 completed</span>
                         </div>
 
-                        <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium mb-2">
-                            <span>3/3 completed</span>
-                        </div>
-                        <div className="w-full bg-slate-100 rounded-full h-1.5 mb-5">
-                            <div className="bg-[#60A5FA] h-1.5 rounded-full w-full"></div>
+                        <div className="w-full bg-slate-100 rounded-full h-1.5 mb-6">
+                            <div className="bg-indigo-600 h-1.5 rounded-full w-full"></div>
                         </div>
 
-                        <div className="space-y-3 mb-5 text-[13px] text-slate-700">
-                            <div className="flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-slate-900 fill-slate-900 text-white" />
-                                <span>Build your calculator</span>
+                        <div className="space-y-4 mb-6">
+                            <div className="flex items-start gap-3">
+                                <div className="bg-[#D1FAE5] rounded-full p-0.5 shrink-0 mt-0.5">
+                                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                </div>
+                                <div>
+                                    <p className="text-[13px] font-bold text-slate-900">Build your calculator</p>
+                                    <p className="text-[12px] text-slate-500">Design and configure your calculator</p>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-slate-900 fill-slate-900 text-white" />
-                                <span>Enable the app embed</span>
+                            <div className="flex items-start gap-3">
+                                <div className="bg-[#D1FAE5] rounded-full p-0.5 shrink-0 mt-0.5">
+                                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                </div>
+                                <div>
+                                    <p className="text-[13px] font-bold text-slate-900">Enable app embed</p>
+                                    <p className="text-[12px] text-slate-500">Activate the calculator on your store</p>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-slate-900 fill-slate-900 text-white" />
-                                <span>Choose where it appears</span>
+                            <div className="flex items-start gap-3">
+                                <div className="bg-[#D1FAE5] rounded-full p-0.5 shrink-0 mt-0.5">
+                                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                </div>
+                                <div>
+                                    <p className="text-[13px] font-bold text-slate-900">Choose where it appears</p>
+                                    <p className="text-[12px] text-slate-500">Select pages to display the calculator</p>
+                                </div>
                             </div>
                         </div>
 
-                        <button className="w-full bg-[#2B2B2B] hover:bg-black text-white rounded-lg py-2.5 text-[13px] font-bold mb-3 shadow-md transition-all">
-                            View it on your store
+                        <button className="w-full bg-[#4F46E5] hover:bg-indigo-700 text-white rounded-lg h-10 text-[13px] font-bold mb-3 shadow flex items-center justify-center gap-2 transition-colors">
+                            <ExternalLink className="w-4 h-4" /> View on your store
                         </button>
 
                         <div className="text-center">
-                            <a href="#" className="text-[#3B82F6] hover:underline text-[13px] font-medium">Customize design</a>
+                            <a href="#" className="flex items-center justify-center gap-1.5 text-[#4F46E5] hover:underline text-[13px] font-semibold">
+                                <ExternalLink className="w-3.5 h-3.5" /> Customize design
+                            </a>
+                        </div>
+                    </div>
+
+                    {/* Help Section */}
+                    <div className="pt-2">
+                        <h3 className="text-[14px] font-bold text-slate-900 mb-1">Need help?</h3>
+                        <p className="text-[13px] text-slate-500 mb-4">Learn how to create powerful calculators.</p>
+
+                        <div className="space-y-3">
+                            <a href="#" className="flex items-center justify-between text-[#4F46E5] hover:underline text-[13px] font-medium group">
+                                <span className="flex items-center gap-2"><BookOpen className="w-4 h-4 text-indigo-400 group-hover:text-[#4F46E5]" /> Documentation</span>
+                                <ExternalLink className="w-3.5 h-3.5" />
+                            </a>
+                            <a href="#" className="flex items-center justify-between text-[#4F46E5] hover:underline text-[13px] font-medium group">
+                                <span className="flex items-center gap-2"><PlayCircle className="w-4 h-4 text-indigo-400 group-hover:text-[#4F46E5]" /> Video tutorials</span>
+                                <ExternalLink className="w-3.5 h-3.5" />
+                            </a>
+                            <a href="#" className="flex items-center justify-between text-[#4F46E5] hover:underline text-[13px] font-medium group">
+                                <span className="flex items-center gap-2"><HelpCircle className="w-4 h-4 text-indigo-400 group-hover:text-[#4F46E5]" /> Contact support</span>
+                            </a>
                         </div>
                     </div>
 
