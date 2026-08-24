@@ -5,6 +5,13 @@ export interface ICustomChoice {
     label: string;
     priceModifier: number;
 }
+export interface IPhysicalSize {
+    width: number;
+    height: number;
+    unit: string;
+    dpi: number;
+}
+
 
 export interface ICustomOption {
     id: string;
@@ -18,7 +25,7 @@ export interface ICustomOption {
     choices: ICustomChoice[];
 }
 
-export interface IPricingRule {
+export interface IConfigPricingRule {
     id: string;
     name: string;
     status: string;
@@ -32,7 +39,7 @@ export interface IPricingRule {
 export interface IProductCustomizerConfig extends Document {
     productId: mongoose.Types.ObjectId;
     options: ICustomOption[];
-    pricingRules: IPricingRule[];
+    pricingRules: IConfigPricingRule[];
     templates: any[];
     createdAt: Date;
     updatedAt: Date;
