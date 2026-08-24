@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { productRoutes } from "./routes/product.routes.js";
 import { configRoutes } from "./routes/config.routes.js";
 import designRoutes from "./routes/design.routes.js";
+import pricingTemplateRoutes from "./routes/pricing-template.routes.js";
 import { shopify } from "./services/shopify-auth.service.js";
 
 const app = express();
@@ -27,6 +28,7 @@ app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/config", configRoutes);
 app.use("/api/v1/designs", designRoutes);
 app.use("/api/v1/pricing", pricingRoutes);
+app.use("/api/v1/pricing-templates", pricingTemplateRoutes);
 
 // Root path confirmation
 app.get("/", (_req, res) => {

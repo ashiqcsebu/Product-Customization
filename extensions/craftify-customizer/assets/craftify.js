@@ -7,82 +7,131 @@ document.addEventListener("DOMContentLoaded", () => {
         const basePrice = parseFloat(basePriceStr.replace(/,/g, ''));
         const config = window.CraftifyConfig ? window.CraftifyConfig[productId] : null;
 
-        if (!config || !config.options || config.options.length === 0) {
-            // No customizer config, just hide
+        if (!config || (!config.isTemplateBased && (!config.options || config.options.length === 0))) {
             container.style.display = 'none';
             return;
         }
 
         const currency = window.ShopifyCurrency || "$";
-        let state = {};
 
-        // Initialize state
-        config.options.forEach(opt => {
-            if (opt.choices && opt.choices.length > 0) {
-                state[opt.id] = opt.choices[0].id;
+        // Define isolated state for this specific product
+        let state = {
+            base_price: basePrice
+        };
+
+        const isTemplate = config.isTemplateBased;
+        const parameters = isTemplate ? config.parameters : config.options;
+        const formula = config.formula || '';
+
+        // Initialize state defaults
+        if (parameters) {
+            parameters.forEach(opt => {
+                if (opt.type === 'number') {
+                    state[opt.id] = parseFloat(opt.defaultValue) || opt.min || 0;
+                } else if (opt.options && opt.options.length > 0) {
+                    state[opt.id] = opt.options[0].value;
+                }
+            });
+        }
+
+        // Custom math evaluator mapping string tags like "[width]" to state values
+        const evaluateMath = (equation) => {
+            let evalString = equation;
+            if (!evalString) return basePrice;
+
+            // replace variables
+            for (const [key, val] of Object.entries(state)) {
+                let actualVal = val;
+                // If it's a dropdown, look up its numeric rate if configured
+                const paramConfig = parameters.find(p => p.id === key);
+                if (paramConfig && paramConfig.options) {
+                    const selected = paramConfig.options.find(o => o.value === val);
+                    // For dropdowns, if it has a priceRate use it for math, else just use 0
+                    if (selected && selected.priceRate !== undefined) {
+                        actualVal = selected.priceRate;
+                    }
+                }
+
+                evalString = evalString.replace(new RegExp(`\\[${key}\\]`, 'g'), actualVal);
+                evalString = evalString.replace(new RegExp(key, 'g'), actualVal); // fallback for raw text
             }
-        });
+
+            try {
+                // simple safe eval fallback for arithmetic
+                const price = new Function('return ' + evalString)();
+                return isNaN(price) ? basePrice : price;
+            } catch (e) {
+                return basePrice;
+            }
+        };
 
         const render = () => {
-            let html = ``;
-            let additionalCost = 0;
+            let html = `<div class="craftify-template-engine">`;
 
-            // Render Options
-            config.options.forEach(opt => {
-                html += `<div class="craftify-option-group">`;
-                html += `<div class="craftify-option-label">${opt.label || opt.name}</div>`;
+            if (isTemplate && parameters) {
+                parameters.forEach(opt => {
+                    html += `<div class="craftify-param-group">`;
+                    html += `<label class="craftify-param-label">${opt.label} ${opt.required ? '<span class="text-rose-500">*</span>' : ''}</label>`;
 
-                // Assuming we default to swatch-style mapping or dropdown based on config.
-                // We'll use swatches for everything as a beautiful default
-                html += `<div class="craftify-swatches">`;
-                const choices = opt.choices || [];
-                choices.forEach(val => {
-                    const isChecked = state[opt.id] === val.id;
-                    const priceMod = val.priceModifier || 0;
-                    if (isChecked) {
-                        additionalCost += parseFloat(priceMod);
-                    }
-
-                    html += `
-                        <label class="craftify-swatch-item">
-                            <input type="radio" name="craftify_${opt.id}" value="${val.id}" ${isChecked ? 'checked' : ''} onchange="window.CraftifyUpdate('${productId}', '${opt.id}', '${val.id}')">
-                            <div class="craftify-swatch-box">
-                                ${val.label}
-                                ${priceMod > 0 ? `<span class="craftify-option-price">(+${currency}${priceMod})</span>` : ''}
+                    if (opt.type === 'number') {
+                        html += `
+                            <div class="craftify-input-wrapper">
+                                <input type="number" 
+                                       min="${opt.min || ''}" 
+                                       max="${opt.max || ''}" 
+                                       value="${state[opt.id]}" 
+                                       oninput="window.CraftifyUpdate('${productId}', '${opt.id}', this.value)"
+                                       class="craftify-input-field" />
+                                ${opt.unit ? `<span class="craftify-unit">${opt.unit}</span>` : ''}
                             </div>
-                        </label>
-                    `;
+                        `;
+                    } else if (opt.type === 'dropdown') {
+                        html += `
+                            <select class="craftify-select-field" onchange="window.CraftifyUpdate('${productId}', '${opt.id}', this.value)">
+                                ${opt.options.map(o => `
+                                    <option value="${o.value}" ${state[opt.id] === o.value ? 'selected' : ''}>
+                                        ${o.label} ${o.priceRate ? `(+${currency}${o.priceRate})` : ''}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        `;
+                    } else if (opt.type === 'checkbox') {
+                        html += `
+                            <label class="craftify-checkbox-wrap">
+                                <input type="checkbox" onchange="window.CraftifyUpdate('${productId}', '${opt.id}', this.checked)" ${state[opt.id] ? 'checked' : ''} />
+                                <span>${opt.label}</span>
+                            </label>
+                        `;
+                    }
+                    html += `</div>`;
                 });
-                html += `</div></div>`;
-            });
+            }
 
-            const finalPrice = basePrice + additionalCost;
+            let finalPrice = basePrice;
+            if (isTemplate && formula) {
+                finalPrice = evaluateMath(formula);
+
+                // Enforce minimum price from template overrides
+                if (config.minimumPrice && finalPrice < config.minimumPrice) {
+                    finalPrice = config.minimumPrice;
+                }
+            }
 
             html += `
                 <div class="craftify-price-summary">
-                    <div class="craftify-price-row">
-                        <span>Base Price</span>
-                        <span>${currency}${basePrice.toFixed(2)}</span>
-                    </div>
-                    ${additionalCost > 0 ? `
-                    <div class="craftify-price-row">
-                        <span>Customizations</span>
-                        <span>+${currency}${additionalCost.toFixed(2)}</span>
-                    </div>` : ''}
                     <div class="craftify-price-total">
-                        <span>Total Price</span>
-                        <span>${currency}${finalPrice.toFixed(2)}</span>
+                        <span>Dynamic Total:</span>
+                        <span class="craftify-grand-total">${currency}${finalPrice.toFixed(2)}</span>
                     </div>
                 </div>
             `;
-
+            html += `</div>`;
             container.innerHTML = html;
         };
 
-        // Global update handler
-        window.CraftifyUpdate = (pId, optId, valId) => {
+        window.CraftifyUpdate = (pId, optId, val) => {
             if (pId === productId) {
-                state[optId] = valId;
+                state[optId] = val;
                 render();
             }
         };

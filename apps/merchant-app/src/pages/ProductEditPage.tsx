@@ -34,8 +34,10 @@ export function ProductEditPage() {
     const [isSaving, setIsSaving] = useState(false);
 
     // Pricing Tabs & Combos
-    const [pricingTab, setPricingTab] = useState<'Combination' | 'Rules'>('Combination');
+    const [pricingTab, setPricingTab] = useState<'Combination' | 'Rules' | 'Template'>('Combination');
     const [combinations, setCombinations] = useState<any[]>([]);
+    const [templates, setTemplates] = useState<any[]>([]);
+    const [selectedTemplate, setSelectedTemplate] = useState('');
 
     // Drawer State
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -49,7 +51,7 @@ export function ProductEditPage() {
     const [editingRuleId, setEditingRuleId] = useState<string | null>('rule_base');
 
     useEffect(() => {
-        // Fetch Product Info
+        if (!id) return;
         fetch(`${API_URL}/products/${id}`)
             .then(res => res.json())
             .then(data => {
@@ -57,6 +59,11 @@ export function ProductEditPage() {
                 fetchConfig();
             })
             .catch(err => console.error(err));
+
+        fetch(`${API_URL}/pricing-templates`)
+            .then(res => res.json())
+            .then(data => setTemplates(data || []))
+            .catch(() => { });
     }, [id]);
 
     const fetchConfig = () => {
@@ -66,7 +73,8 @@ export function ProductEditPage() {
                 if (data.options && data.options.length > 0) {
                     setVariants(data.options);
                 }
-                if (data.combinations && data.combinations.length > 0) setCombinations(data.combinations);
+                if (data.combinations) setCombinations(data.combinations);
+                if (data.templateId) setSelectedTemplate(data.templateId);
                 if (data.pricingRules && data.pricingRules.length > 0) setRules(data.pricingRules);
                 if (data.useAppVariants !== undefined) setUseAppVariants(data.useAppVariants);
             });
@@ -82,6 +90,7 @@ export function ProductEditPage() {
                 combinations,
                 pricingRules: rules,
                 useAppVariants,
+                pricingTemplateId: selectedTemplate || null
             })
         })
             .then(res => res.json())
@@ -348,12 +357,24 @@ export function ProductEditPage() {
                         {/* Pricing Complete Feature (Phase 3 & 4) */}
                         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-10">
                             {/* Tabs */}
-                            <div className="border-b border-slate-200 flex">
-                                <button onClick={() => setPricingTab('Combination')} className={`px-6 py-4 font-bold text-sm flex-1 lg:flex-none text-center transition ${pricingTab === 'Combination' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}>
+                            <div className="flex border-b border-slate-200">
+                                <button
+                                    onClick={() => setPricingTab('Combination')}
+                                    className={`px-5 py-3 text-sm font-bold transition flex-1 sm:flex-none ${pricingTab === 'Combination' ? 'border-b-2 border-indigo-600 text-indigo-700' : 'text-slate-500 hover:text-slate-800 border-b-2 border-transparent'}`}
+                                >
                                     Combination Pricing
                                 </button>
-                                <button onClick={() => setPricingTab('Rules')} className={`px-6 py-4 font-bold text-sm flex-1 lg:flex-none text-center transition ${pricingTab === 'Rules' ? 'text-indigo-600 border-b-2 border-indigo-600' : 'text-slate-500 hover:text-slate-800'}`}>
-                                    Pricing Rules
+                                <button
+                                    onClick={() => setPricingTab('Rules')}
+                                    className={`px-5 py-3 text-sm font-bold transition flex-1 sm:flex-none ${pricingTab === 'Rules' ? 'border-b-2 border-indigo-600 text-indigo-700' : 'text-slate-500 hover:text-slate-800 border-b-2 border-transparent'}`}
+                                >
+                                    Conditional Rules
+                                </button>
+                                <button
+                                    onClick={() => setPricingTab('Template')}
+                                    className={`px-5 py-3 text-sm font-bold transition flex-1 sm:flex-none ${pricingTab === 'Template' ? 'border-b-2 border-indigo-600 text-indigo-700' : 'text-slate-500 hover:text-slate-800 border-b-2 border-transparent'}`}
+                                >
+                                    Pricing Template
                                 </button>
                             </div>
 
@@ -617,6 +638,38 @@ export function ProductEditPage() {
 
                                             <p className="text-[11px] text-slate-400 font-medium mt-4">This preview is an example. Final price may vary.</p>
                                         </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {pricingTab === 'Template' && (
+                                <div className="p-6 bg-white animate-in relative rounded-b-xl border border-t-0 border-slate-200">
+                                    <div className="max-w-2xl">
+                                        <h3 className="text-sm font-black text-slate-800 mb-2">Assign Pricing Template</h3>
+                                        <p className="text-xs font-semibold text-slate-500 mb-6">Select a dynamic pricing template from your library. This will override existing variants and rules using the template's math formula and logic.</p>
+
+                                        <select
+                                            value={selectedTemplate}
+                                            onChange={e => setSelectedTemplate(e.target.value)}
+                                            className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 text-sm font-bold focus:border-indigo-500 outline-none"
+                                        >
+                                            <option value="">No Template (Use standard variants)</option>
+                                            {templates.map(t => (
+                                                <option key={t._id} value={t._id}>{t.name} ({t.industry})</option>
+                                            ))}
+                                        </select>
+
+                                        {selectedTemplate && (
+                                            <div className="mt-4 p-4 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-between">
+                                                <div>
+                                                    <h4 className="text-sm font-black text-indigo-900">Template Active</h4>
+                                                    <p className="text-xs font-medium text-indigo-700 mt-1">This product will now render dynamic inputs from the template on the live store.</p>
+                                                </div>
+                                                <Link to={`/pricing/${selectedTemplate}`} className="h-9 px-4 bg-white rounded-lg text-xs font-bold text-indigo-700 flex items-center shadow-sm hover:scale-105 transition-transform">
+                                                    Edit Template
+                                                </Link>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             )}

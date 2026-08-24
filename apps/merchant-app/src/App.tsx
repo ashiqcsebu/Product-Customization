@@ -8,7 +8,7 @@ import {
 import { ProductsPage } from './pages/ProductsPage';
 import { ProductEditPage } from './pages/ProductEditPage';
 import { OrdersPage } from './pages/OrdersPage';
-import { PricingRulesPage } from './pages/PricingRulesPage';
+import { PricingTemplatesPage } from './pages/PricingRulesPage';
 import { PricingRuleBuilder } from './pages/PricingRuleBuilder';
 import { ProductOptionsBuilder } from './pages/ProductOptionsBuilder';
 import { Dashboard } from './pages/Dashboard';
@@ -154,9 +154,10 @@ function App() {
                     <Route path="/products/:id" element={<ProductEditPage />} />
                     <Route path="/options" element={<ProductOptionsBuilder />} />
                     <Route path="/templates" element={<TemplatesPage />} />
-                    <Route path="/pricing" element={<PricingRulesPage />} />
-                    <Route path="/conditional-rules" element={<PricingRulesPage />} />
+                    <Route path="/pricing" element={<PricingTemplatesPage />} />
+                    <Route path="/conditional-rules" element={<PricingTemplatesPage />} />
                     <Route path="/pricing/new" element={<PricingRuleBuilder />} />
+                    <Route path="/pricing/:id" element={<PricingRuleBuilder />} />
                     <Route path="/orders" element={<OrdersPage />} />
                     <Route path="/sync" element={<ProductsPage />} />
                     <Route path="/import-export" element={<ImportExportPage />} />

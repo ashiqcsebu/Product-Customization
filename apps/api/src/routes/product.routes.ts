@@ -224,12 +224,21 @@ router.get("/:id/config", async (req: Request, res: Response) => {
 });
 
 /**
- * Update Product Customizer Config
+ * Assign Customizer Config or Template to Product
  * PUT /api/v1/products/:id/config
  */
 router.put("/:id/config", async (req: Request, res: Response) => {
     try {
-        const { options, pricingRules, templates } = req.body;
+        const { pricingTemplateId, options, pricingRules, templates } = req.body;
+
+        // If pricingTemplateId is passed, save it to the Product
+        const product = await Product.findById(req.params.id);
+        if (!product) return res.status(404).json({ error: "Product not found" });
+
+        if (pricingTemplateId) {
+            (product as any).pricingTemplateId = pricingTemplateId;
+            await product.save();
+        }
 
         let config = await ProductCustomizerConfig.findOneAndUpdate(
             { productId: req.params.id },
@@ -239,16 +248,34 @@ router.put("/:id/config", async (req: Request, res: Response) => {
 
         // Push to Shopify Live Store
         try {
-            const product = await Product.findById(req.params.id);
-            if (product && product.shopifyProductId) {
-                await ShopifyService.pushProductConfigMetafield(
-                    product.shopifyProductId,
-                    JSON.stringify({
+            if (product.shopifyProductId) {
+                let formulaData: any = {};
+
+                if ((product as any).pricingTemplateId) {
+                    const templateData = await mongoose.model('PricingTemplate').findById((product as any).pricingTemplateId);
+                    if (templateData) {
+                        formulaData = {
+                            isTemplateBased: true,
+                            templateId: templateData._id,
+                            parameters: templateData.parameters,
+                            rules: templateData.rules,
+                            formula: templateData.formula,
+                            minimumPrice: templateData.minimumPrice
+                        };
+                    }
+                } else {
+                    formulaData = {
+                        isTemplateBased: false,
                         useAppVariants: config.useAppVariants,
                         options: config.options,
                         combinations: config.combinations,
                         pricingRules: config.pricingRules
-                    })
+                    };
+                }
+
+                await ShopifyService.pushProductConfigMetafield(
+                    product.shopifyProductId,
+                    JSON.stringify(formulaData)
                 );
             }
         } catch (metaErr) {

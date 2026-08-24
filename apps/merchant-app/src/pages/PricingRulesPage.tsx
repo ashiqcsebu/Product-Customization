@@ -1,108 +1,142 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Calculator, Plus, Search, MoreVertical, Edit2, Copy, Trash2, ArrowUpDown, Filter, AlertCircle, Percent, DollarSign } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { Settings, Plus, Search, Filter, Box, Edit2, Copy, Trash2, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-export function PricingRulesPage() {
-    const [rules, setRules] = useState([
-        { id: "1", name: "Canvas Size Multiplier", type: "Formula", status: "Active", appliedTo: "2 Products", lastUpdated: "Today, 10:43 AM" },
-        { id: "2", name: "Premium Material Surcharge", type: "Fixed Addition", status: "Active", appliedTo: "All Products", lastUpdated: "Yesterday, 4:12 PM" },
-        { id: "3", name: "Wholesale Discount Tier 1", type: "Percentage", status: "Draft", appliedTo: "1 Category", lastUpdated: "Aug 12, 2026" },
-        { id: "4", name: "Express Shipping Fee", type: "Fixed Addition", status: "Active", appliedTo: "Cart Level", lastUpdated: "Aug 10, 2026" },
-    ]);
+export function PricingTemplatesPage() {
+    const navigate = useNavigate();
+    const [templates, setTemplates] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Fetch templates from API
+        fetch('/api/v1/pricing-templates')
+            .then(res => res.json())
+            .then(data => {
+                setTemplates(data || []);
+                setIsLoading(false);
+            })
+            .catch(() => setIsLoading(false));
+    }, []);
 
     return (
-        <div className="p-8 h-full bg-[#F8FAFC] flex flex-col max-w-[1400px] mx-auto w-full">
+        <div className="p-8 max-w-7xl mx-auto">
             {/* Header */}
-            <div className="flex justify-between items-end mb-8">
-                <div>
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-                        <Calculator className="w-8 h-8 text-indigo-600 p-1.5 bg-indigo-100 rounded-lg" />
-                        Pricing Engine
-                    </h2>
-                    <p className="text-sm font-medium text-slate-500 mt-2">Manage dynamic pricing algorithms, surcharges, and bulk discounts.</p>
+            <div className="flex items-start justify-between mb-8">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-200">
+                        <Settings className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-black text-slate-900 tracking-tight">Pricing Templates</h1>
+                        <p className="text-sm font-semibold text-slate-500 mt-1">Manage reusable dynamic pricing algorithms for your products.</p>
+                    </div>
                 </div>
-                <Link to="/pricing/new" className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 shadow-sm transition-all hover:shadow">
-                    <Plus className="w-4 h-4 text-indigo-100" /> Create Rule
-                </Link>
+                <button
+                    onClick={() => navigate('/pricing/new')}
+                    className="h-10 px-6 rounded-xl bg-[#6C5CE7] hover:bg-[#5a4bcf] active:bg-[#4b3eaf] text-white text-sm font-bold flex items-center gap-2 shadow-[0_4px_15px_rgba(108,92,231,0.3)] transition-all"
+                >
+                    <Plus className="w-4 h-4" />
+                    Create Template
+                </button>
             </div>
 
-            {/* Smart Toolbar */}
-            <div className="bg-white p-4 rounded-t-xl border border-slate-200 border-b-0 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3 w-full max-w-md">
-                    <div className="relative w-full">
-                        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            {/* Filter Bar */}
+            <div className="bg-white px-5 py-4 rounded-2xl shadow-sm border border-slate-200 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <div className="relative">
+                        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                         <input
-                            placeholder="Search algorithms..."
-                            className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:font-normal"
+                            type="text"
+                            placeholder="Search templates..."
+                            className="bg-slate-50 focus:bg-white pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium w-full sm:w-64 focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all placeholder-slate-400"
                         />
                     </div>
-                    <button className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-700 hover:bg-slate-50 shrink-0">
-                        <Filter className="w-4 h-4 text-slate-400" /> Filter
+                    <button className="h-10 px-4 rounded-xl border border-slate-200 text-slate-600 text-sm font-bold hover:bg-slate-50 flex items-center gap-2">
+                        <Filter className="w-4 h-4" />
+                        Filter
                     </button>
+                </div>
+                <div className="text-sm font-bold text-slate-500">
+                    Showing {templates.length} templates
                 </div>
             </div>
 
-            {/* Main Table */}
-            <div className="bg-white rounded-b-xl border border-slate-200 shadow-sm overflow-hidden flex-1 relative">
-                <div className="overflow-x-auto h-full">
+            {/* Empty State */}
+            {!isLoading && templates.length === 0 && (
+                <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-16 flex flex-col items-center justify-center text-center">
+                    <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+                        <Box className="w-10 h-10 text-slate-300" />
+                    </div>
+                    <h2 className="text-xl font-black text-slate-800 mb-2">No Templates Found</h2>
+                    <p className="text-sm font-semibold text-slate-500 mb-6 max-w-md mx-auto">You haven't created any pricing templates yet. Create your first template to build powerful dynamic pricing rules.</p>
+                    <button
+                        onClick={() => navigate('/pricing/new')}
+                        className="h-11 px-8 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold shadow-lg transition-all"
+                    >
+                        Create First Template
+                    </button>
+                </div>
+            )}
+
+            {/* Template List */}
+            {templates.length > 0 && (
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-slate-50/80 border-b border-slate-200">
-                                <th className="py-3 px-6 text-xs font-black text-slate-500 tracking-wider uppercase flex items-center gap-1 cursor-pointer hover:text-slate-800">Rule Name <ArrowUpDown className="w-3 h-3" /></th>
-                                <th className="py-3 px-6 text-xs font-black text-slate-500 tracking-wider uppercase">Algorithm Type</th>
-                                <th className="py-3 px-6 text-xs font-black text-slate-500 tracking-wider uppercase">Status</th>
-                                <th className="py-3 px-6 text-xs font-black text-slate-500 tracking-wider uppercase">Applied To</th>
-                                <th className="py-3 px-6 text-xs font-black text-slate-500 tracking-wider uppercase">Last Updated</th>
-                                <th className="py-3 px-6 text-xs font-black text-slate-500 tracking-wider uppercase text-right">Actions</th>
+                            <tr className="bg-slate-50/50 border-b border-slate-200">
+                                <th className="px-6 py-4 text-[11px] font-black tracking-wider uppercase text-slate-400 w-1/3">Template Name</th>
+                                <th className="px-6 py-4 text-[11px] font-black tracking-wider uppercase text-slate-400">Industry / Type</th>
+                                <th className="px-6 py-4 text-[11px] font-black tracking-wider uppercase text-slate-400">Status</th>
+                                <th className="px-6 py-4 text-[11px] font-black tracking-wider uppercase text-slate-400">Parameters</th>
+                                <th className="px-6 py-4 text-[11px] font-black tracking-wider uppercase text-slate-400 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {rules.map((rule) => (
-                                <tr key={rule.id} className="hover:bg-slate-50/50 transition-colors group">
-                                    <td className="py-4 px-6">
+                            {templates.map((template) => (
+                                <tr key={template._id} className="hover:bg-slate-50/50 transition-colors group">
+                                    <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
-                                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${rule.type === 'Formula' ? 'bg-purple-100 text-purple-600' :
-                                                    rule.type === 'Percentage' ? 'bg-emerald-100 text-emerald-600' :
-                                                        'bg-blue-100 text-blue-600'
-                                                }`}>
-                                                {rule.type === 'Formula' && <Calculator className="w-4 h-4" />}
-                                                {rule.type === 'Percentage' && <Percent className="w-4 h-4" />}
-                                                {rule.type === 'Fixed Addition' && <DollarSign className="w-4 h-4" />}
+                                            <div className="w-9 h-9 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center">
+                                                <Settings className="w-4 h-4 text-indigo-600" />
                                             </div>
                                             <div>
-                                                <span className="font-bold text-slate-900 block leading-none mb-1">{rule.name}</span>
-                                                <span className="text-xs font-medium text-slate-500">{rule.id.substring(0, 8)}</span>
+                                                <div className="text-sm font-bold text-slate-800">{template.name}</div>
+                                                <div className="text-xs font-semibold text-slate-400 line-clamp-1">{template.description || "No description"}</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="py-4 px-6">
-                                        <span className="text-sm font-semibold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md">{rule.type}</span>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-2 text-sm font-bold text-slate-700">
+                                            {template.industry || "General"}
+                                            {template.productType && <span className="text-slate-400 font-medium">/ {template.productType}</span>}
+                                        </div>
                                     </td>
-                                    <td className="py-4 px-6">
-                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${rule.status === 'Active' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-amber-100 text-amber-700 border border-amber-200'
+                                    <td className="px-6 py-4">
+                                        <span className={`inline-flex items-center px-2 py-1 space-x-1 text-[11px] font-black rounded-md ${template.status === 'active'
+                                                ? 'bg-emerald-100 text-emerald-700'
+                                                : template.status === 'draft'
+                                                    ? 'bg-amber-100 text-amber-700'
+                                                    : 'bg-slate-100 text-slate-600'
                                             }`}>
-                                            <span className={`w-1.5 h-1.5 rounded-full ${rule.status === 'Active' ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
-                                            {rule.status}
+                                            <span className={`w-1.5 h-1.5 rounded-full ${template.status === 'active' ? 'bg-emerald-500' : template.status === 'draft' ? 'bg-amber-500' : 'bg-slate-400'
+                                                }`} />
+                                            <span className="uppercase">{template.status}</span>
                                         </span>
                                     </td>
-                                    <td className="py-4 px-6">
-                                        <span className="text-sm font-medium text-slate-600 flex items-center gap-1.5">
-                                            {rule.appliedTo}
-                                        </span>
+                                    <td className="px-6 py-4">
+                                        <div className="text-xs font-black text-slate-600 bg-slate-100 px-2 py-1 rounded-md inline-block">
+                                            {template.parameters?.length || 0} Params
+                                        </div>
                                     </td>
-                                    <td className="py-4 px-6 text-sm font-medium text-slate-500">
-                                        {rule.lastUpdated}
-                                    </td>
-                                    <td className="py-4 px-6 text-right">
-                                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+                                    <td className="px-6 py-4 text-right opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button onClick={() => navigate(`/pricing/${template._id}`)} className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 border border-transparent hover:border-indigo-100 transition-colors">
                                                 <Edit2 className="w-4 h-4" />
                                             </button>
-                                            <button className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+                                            <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-colors">
                                                 <Copy className="w-4 h-4" />
                                             </button>
-                                            <button className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                onClick={() => setRules(rules.filter(r => r.id !== rule.id))}>
+                                            <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100 transition-colors">
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
@@ -112,24 +146,7 @@ export function PricingRulesPage() {
                         </tbody>
                     </table>
                 </div>
-
-                {rules.length === 0 && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-10">
-                        <AlertCircle className="w-12 h-12 text-slate-300 mb-4" />
-                        <h3 className="text-lg font-bold text-slate-800">No active algorithms</h3>
-                        <p className="text-slate-500 text-sm mt-1 max-w-xs text-center">Configure advanced pricing logics based on user inputs.</p>
-                    </div>
-                )}
-            </div>
-
-            {/* Pagination / Footer */}
-            <div className="mt-4 flex items-center justify-between text-sm font-medium text-slate-500">
-                <p>Showing {rules.length} algorithms</p>
-                <div className="flex gap-2">
-                    <button className="px-3 py-1 bg-white border border-slate-200 rounded-md hover:bg-slate-50 disabled:opacity-50">Prev</button>
-                    <button className="px-3 py-1 bg-white border border-slate-200 rounded-md hover:bg-slate-50 disabled:opacity-50">Next</button>
-                </div>
-            </div>
+            )}
         </div>
     );
 }

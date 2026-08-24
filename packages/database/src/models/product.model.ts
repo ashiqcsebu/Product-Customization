@@ -27,6 +27,8 @@ export interface IProduct {
     images: IProductImage[];
     tags: string[];
     customizerEnabled: boolean;
+    pricingTemplateId?: mongoose.Types.ObjectId;
+    pricingOverrides?: any;
     shopifyCreatedAt?: Date | null;
     shopifyUpdatedAt?: Date | null;
     lastSyncedAt: Date;
@@ -77,7 +79,9 @@ export const ProductSchema = new Schema<IProductDocument>(
         options: { type: [ProductOptionSchema], default: [] },
         images: { type: [ProductImageSchema], default: [] },
         tags: { type: [String], default: [] },
-        customizerEnabled: { type: Boolean, default: true, index: true },
+        customizerEnabled: { type: Boolean, default: false },
+        pricingTemplateId: { type: Schema.Types.ObjectId, ref: 'PricingTemplate' },
+        pricingOverrides: { type: Schema.Types.Mixed },
         shopifyCreatedAt: { type: Date, default: null },
         shopifyUpdatedAt: { type: Date, default: null },
         lastSyncedAt: { type: Date, default: Date.now },
